@@ -51,7 +51,7 @@ async function refreshStatus() {
     try {
         const s = await VoxService.Status();
         if (s.reachable) {
-            statusEl.textContent = [s.settings.model, s.settings.voice].filter(Boolean).join(" · ");
+            statusEl.textContent = s.settings.model;
             showBanner("");
         } else {
             statusEl.textContent = "";
