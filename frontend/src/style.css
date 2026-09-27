@@ -54,6 +54,12 @@ html, body {
     min-height: 24px;
 }
 
+/* The header bar is the handle for dragging the panel around. */
+.bar { --wails-draggable: drag; }
+.bar button { --wails-draggable: no-drag; }
+/* Set briefly on double-click so macOS doesn't zoom or minimize the panel. */
+.no-drag .bar { --wails-draggable: no-drag; }
+
 .title { font-weight: 600; font-size: 13px; }
 
 .status {
@@ -107,6 +113,8 @@ html, body {
     outline: none;
     -webkit-user-select: text;
     user-select: text;
+    /* Always allow WebKit's native menu here: it carries the spelling suggestions. */
+    --default-contextmenu: show;
 }
 #input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.25); }
 #input::placeholder { color: var(--text-muted); }
@@ -116,6 +124,30 @@ html, body {
     font-size: 11px;
     color: var(--text-muted);
 }
+
+/* Two-stage request timer: full width = timeout; the color shows the stage.
+   Reserved space, so showing it never resizes the panel. */
+.progress {
+    position: relative;
+    height: 3px;
+    margin: -4px 2px 8px;
+    border-radius: 2px;
+    background: var(--hover);
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.progress.active { opacity: 1; }
+.progress .seg {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    background: var(--accent);
+    transition: background-color 0.25s;
+}
+.progress .seg.waiting { background: #bf5af2; }
 
 .section-label {
     margin: 0 2px 4px;

@@ -24,6 +24,17 @@ export interface SpeechEnd {
 }
 
 /**
+ * SpeechProgress reports which stage a request is in: "sending" until OpenVox
+ * accepts it (including loading the model and waiting while it's busy), then
+ * "waiting" until the audio arrives.
+ */
+export interface SpeechProgress {
+    "id": number;
+    "stage": string;
+    "timeoutMs": number;
+}
+
+/**
  * Status describes whether OpenVox is reachable and which voice will be used.
  */
 export interface Status {

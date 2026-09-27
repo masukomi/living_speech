@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -18,7 +19,11 @@ import (
 	"livingspeech/internal/store"
 )
 
-const previewText = "Hello! This is how I sound."
+const (
+	previewText = "Hello! This is how I sound."
+	// speechTimeout bounds one utterance, from pressing Return to the end of the audio.
+	speechTimeout = 2 * time.Minute
+)
 
 // Event payloads sent to the frontend. ID identifies the utterance so the
 // frontend can ignore chunks from a request it has already stopped.
@@ -27,12 +32,22 @@ type SpeechChunk struct {
 	Audio string `json:"audio"` // base64 WAV
 }
 
+// SpeechProgress reports which stage a request is in: "sending" until OpenVox
+// accepts it (including loading the model and waiting while it's busy), then
+// "waiting" until the audio arrives.
+type SpeechProgress struct {
+	ID        int    `json:"id"`
+	Stage     string `json:"stage"`
+	TimeoutMs int    `json:"timeoutMs"`
+}
+
 type SpeechEnd struct {
 	ID    int    `json:"id"`
 	Error string `json:"error,omitempty"`
 }
 
 func init() {
+	application.RegisterEvent[SpeechProgress]("speech:progress")
 	application.RegisterEvent[SpeechChunk]("speech:chunk")
 	application.RegisterEvent[SpeechEnd]("speech:done")
 }
@@ -52,7 +67,7 @@ type SpeechService struct {
 
 	app    *application.App
 	window *application.WebviewWindow
-	tray   *application.SystemTray
+	panel  *Panel
 
 	mu       sync.Mutex
 	cancel   context.CancelFunc
@@ -71,8 +86,8 @@ func NewSpeechService(dataDir string) *SpeechService {
 	}
 }
 
-func (v *SpeechService) attach(app *application.App, window *application.WebviewWindow, tray *application.SystemTray) {
-	v.app, v.window, v.tray = app, window, tray
+func (v *SpeechService) attach(app *application.App, window *application.WebviewWindow, panel *Panel) {
+	v.app, v.window, v.panel = app, window, panel
 }
 
 func (v *SpeechService) ServiceStartup(ctx context.Context, _ application.ServiceOptions) error {
@@ -172,23 +187,33 @@ func (v *SpeechService) startSpeech(text string) int {
 	if v.cancel != nil {
 		v.cancel()
 	}
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(), speechTimeout)
 	v.cancel = cancel
 	v.speechID++
 	id := v.speechID
 	v.mu.Unlock()
 
+	v.emitProgress(id, "sending")
 	go func() {
 		defer cancel()
 		err := v.speak(ctx, id, text)
 		end := SpeechEnd{ID: id}
-		if err != nil && !errors.Is(err, context.Canceled) {
-			log.Printf("speech %d: %v", id, err)
+		switch {
+		case errors.Is(err, context.DeadlineExceeded):
+			end.Error = fmt.Sprintf("OpenVox didn't finish within %v.", speechTimeout)
+		case err != nil && !errors.Is(err, context.Canceled):
 			end.Error = err.Error()
+		}
+		if end.Error != "" {
+			log.Printf("speech %d: %v", id, err)
 		}
 		v.app.Event.Emit("speech:done", end)
 	}()
 	return id
+}
+
+func (v *SpeechService) emitProgress(id int, stage string) {
+	v.app.Event.Emit("speech:progress", SpeechProgress{ID: id, Stage: stage, TimeoutMs: int(speechTimeout.Milliseconds())})
 }
 
 func (v *SpeechService) speak(ctx context.Context, id int, text string) error {
@@ -206,7 +231,8 @@ func (v *SpeechService) speak(ctx context.Context, id int, text string) error {
 		Model: s.Model, Input: text, Language: s.Language, Voice: s.Voice,
 		ResponseFormat: "wav", Stream: true,
 	}
-	err = v.client.Speak(ctx, req, emit)
+	accepted := func() { v.emitProgress(id, "waiting") }
+	err = v.client.SpeakWithProgress(ctx, req, accepted, emit)
 	if !errors.Is(err, openvox.ErrVoiceNotFound) {
 		return err
 	}
@@ -221,7 +247,7 @@ func (v *SpeechService) speak(ctx context.Context, id int, text string) error {
 		log.Printf("saving replacement voice: %v", serr)
 	}
 	req.Voice = s.Voice
-	return v.client.Speak(ctx, req, emit)
+	return v.client.SpeakWithProgress(ctx, req, accepted, emit)
 }
 
 // resolveSettings fills in any missing model/language/voice with the first
@@ -317,22 +343,14 @@ func (v *SpeechService) ScreenHeight() int {
 	return 900
 }
 
-// SetPanelHeight resizes the panel to fit its content, keeping it pinned under the menu bar.
+// SetPanelHeight resizes the panel to fit its content, keeping its top edge in place.
 func (v *SpeechService) SetPanelHeight(height int) {
 	maxH := v.ScreenHeight() * 9 / 10
-	height = max(120, min(height, maxH))
-	w, h := v.window.Size()
-	if h == height {
-		return
-	}
-	v.window.SetSize(w, height)
-	if v.window.IsVisible() {
-		_ = v.tray.PositionWindow(v.window, panelOffset)
-	}
+	v.panel.SetHeight(max(120, min(height, maxH)))
 }
 
 func (v *SpeechService) HidePanel() {
-	v.window.Hide()
+	v.panel.Hide()
 }
 
 func (v *SpeechService) Quit() {

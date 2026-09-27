@@ -96,12 +96,13 @@ func TestSpeakStreaming(t *testing.T) {
 	defer srv.Close()
 
 	var got []string
-	err := New(srv.URL).Speak(context.Background(), SpeechRequest{Model: "kokoro", Input: "hi", Language: "en", Voice: "af_bella", Stream: true},
+	err := New(srv.URL).SpeakWithProgress(context.Background(), SpeechRequest{Model: "kokoro", Input: "hi", Language: "en", Voice: "af_bella", Stream: true},
+		func() { got = append(got, "accepted") },
 		func(b []byte) { got = append(got, string(b)) })
 	if err != nil {
 		t.Fatal(err)
 	}
-	if strings.Join(got, ",") != "RIFF-one,RIFF-two" {
+	if strings.Join(got, ",") != "accepted,RIFF-one,RIFF-two" {
 		t.Fatalf("chunks: %v", got)
 	}
 }

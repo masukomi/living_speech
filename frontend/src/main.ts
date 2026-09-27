@@ -2,6 +2,7 @@ import "./style.css";
 import {Events} from "@wailsio/runtime";
 import {SpeechService} from "../bindings/livingspeech";
 import * as audio from "./audio";
+import * as progress from "./progress";
 import {initSettings, refreshSettings} from "./settings";
 
 const panel = document.getElementById("panel") as HTMLDivElement;
@@ -107,8 +108,15 @@ async function speak(text: string) {
     void refreshRecent();
 }
 
+Events.On("speech:progress", (ev) => {
+    const {id, stage, timeoutMs} = ev.data;
+    if (id <= stoppedUpTo) return;
+    progress.stage(id, stage, timeoutMs);
+});
+
 Events.On("speech:chunk", (ev) => {
     const {id, audio: b64} = ev.data;
+    progress.finish(id);
     startPlayback(id);
     if (audio.isCurrent(id)) {
         audio.enqueue(id, b64, (e) => showBanner(`Couldn't play audio: ${e}`));
@@ -117,6 +125,7 @@ Events.On("speech:chunk", (ev) => {
 
 Events.On("speech:done", async (ev) => {
     const {id, error} = ev.data;
+    progress.finish(id);
     if (id !== activeID) return;
     if (error) {
         showBanner(`Couldn't generate speech. ${error}`);
@@ -128,6 +137,7 @@ Events.On("speech:done", async (ev) => {
 
 stopBtn.addEventListener("click", () => {
     stoppedUpTo = activeID;
+    progress.finish(activeID);
     audio.stop();
     stopBtn.hidden = true;
     void SpeechService.StopSpeaking();
@@ -164,6 +174,14 @@ document.getElementById("refresh")!.addEventListener("click", () => void refresh
 document.getElementById("preview")!.addEventListener("click", async () => startPlayback(await SpeechService.Preview()));
 document.getElementById("quit")!.addEventListener("click", () => void SpeechService.Quit());
 initSettings(refreshStatus);
+
+// A double-click on a drag region would trigger macOS's title-bar zoom/minimize.
+// The second mousedown precedes the dblclick, so turn dragging off just for it.
+document.addEventListener("mousedown", (e) => {
+    if (e.detail < 2) return;
+    panel.classList.add("no-drag");
+    setTimeout(() => panel.classList.remove("no-drag"), 500);
+}, true);
 
 // Each time the panel is shown it becomes the key window.
 window.addEventListener("focus", () => {

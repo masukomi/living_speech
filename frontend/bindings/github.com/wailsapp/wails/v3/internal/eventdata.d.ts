@@ -14,6 +14,7 @@ declare module "@wailsio/runtime" {
         interface CustomEvents {
             "speech:chunk": main$0.SpeechChunk;
             "speech:done": main$0.SpeechEnd;
+            "speech:progress": main$0.SpeechProgress;
         }
     }
 }

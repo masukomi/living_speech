@@ -26,6 +26,7 @@ func main() {
 		log.Fatal(err)
 	}
 	speech := NewSpeechService(dataDir)
+	enableSpellChecking()
 
 	app := application.New(application.Options{
 		Name:        "LivingSpeech",
@@ -69,9 +70,12 @@ func main() {
 	tray.SetTemplateIcon(trayIcon)
 	tray.SetTooltip("LivingSpeech")
 	tray.SetMenu(menu)
+	// Attaching lets Wails hide the panel when the right-click menu opens;
+	// left clicks go to the panel so it can reopen where the user left it.
 	tray.AttachWindow(window).WindowOffset(panelOffset)
+	panel := NewPanel(app, window, tray, store.NewWindowStore(dataDir))
 
-	speech.attach(app, window, tray)
+	speech.attach(app, window, panel)
 
 	if err := app.Run(); err != nil {
 		log.Fatal(err)

@@ -75,7 +75,7 @@ export function ServerURL(): $CancellablePromise<string> {
 }
 
 /**
- * SetPanelHeight resizes the panel to fit its content, keeping it pinned under the menu bar.
+ * SetPanelHeight resizes the panel to fit its content, keeping its top edge in place.
  */
 export function SetPanelHeight(height: number): $CancellablePromise<void> {
     return $Call.ByID(532468258, height);

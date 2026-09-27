@@ -25,6 +25,10 @@
         <textarea id="input" rows="1" placeholder="Type to speak" spellcheck="true" autofocus></textarea>
         <p class="hint">Return to speak · Shift+Return for a new line</p>
 
+        <div id="progress" class="progress" role="progressbar" aria-label="Speech request progress">
+            <div class="seg"></div>
+        </div>
+
         <div id="recent-section">
             <h2 class="section-label">Recent</h2>
             <ul id="recent" class="recent"></ul>

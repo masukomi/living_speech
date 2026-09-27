@@ -1,0 +1,14 @@
+# config file for release_me release tool
+# https://github.com/masukomi/release_me
+
+rm_schema_version: v1.0.0
+changelog_path: CHANGELOG.org
+changelog_commit_message: updated changelog
+# homebrew:
+#   formula_path:  /Users/masukomi/workspace/homebrew-tap/Formula/live_speech.rb
+#   associated_remote: github
+publishable_remotes:
+- remote_name: github
+  forge_type: github
+- remote_name: origin
+  forge_type: gitea

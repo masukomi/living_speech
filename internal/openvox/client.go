@@ -103,6 +103,13 @@ func (c *Client) Load(ctx context.Context, model string) error {
 // Speak generates speech, calling onChunk with each WAV segment as it arrives.
 // Streaming (SSE) responses yield many chunks; a plain audio response yields one.
 func (c *Client) Speak(ctx context.Context, req SpeechRequest, onChunk func([]byte)) error {
+	return c.SpeakWithProgress(ctx, req, nil, onChunk)
+}
+
+// SpeakWithProgress is Speak, plus onAccepted (if non-nil) is called once the
+// server has accepted the request, after any waiting while it was busy. For a
+// streaming request the audio is still being generated at that point.
+func (c *Client) SpeakWithProgress(ctx context.Context, req SpeechRequest, onAccepted func(), onChunk func([]byte)) error {
 	body, err := json.Marshal(req)
 	if err != nil {
 		return err
@@ -126,6 +133,9 @@ func (c *Client) Speak(ctx context.Context, req SpeechRequest, onChunk func([]by
 		return err
 	}
 	defer resp.Body.Close()
+	if onAccepted != nil {
+		onAccepted()
+	}
 
 	if strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream") {
 		return readSpeechEvents(resp.Body, onChunk)
