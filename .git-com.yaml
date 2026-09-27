@@ -1,0 +1,66 @@
+change-type:
+  destination: title
+  type: select
+  instructions: What kind of change?
+  before-string: "["
+  after-string: "]"
+  format: "%-12s"
+  agent-hint: "[option definitions] fix: fixing something broken, add: adding new functionality, change: changing behavior without really adding new functionality, refactor: changing code flow without changing functionality, clean-up: minor changes like comment and whitespace changes"
+  options:
+  - fix
+  - add
+  - change
+  - refactor
+  - clean-up
+  modifiable: true
+breaking-indicator:
+  destination: title
+  type: select
+  instructions: Skip unless breaking change
+  after-string: ": "
+  allow-empty: true
+  options:
+  - ⚠️
+  empty-selection-text: Skip
+commit-title:
+  destination: title
+  type: text
+  placeholder: Commit Title
+commit-description:
+  destination: body
+  type: multiline-text
+  instructions: Please describe your changes.
+  allow-empty: true
+code-sections:
+  destination: body
+  type: multi-select
+  instructions: Which section(s) of the codebase?
+  before-string: "\n\nCode Sections: "
+  allow-empty: true
+  options:
+  - ui
+  - ux
+  - css
+  - settings
+  - meta
+  - audio
+  - history
+  modifiable: true
+  record-as: joined-string
+ticket-number:
+  destination: body
+  type: text
+  instructions: Associated Ticket Number (if any)
+  before-string: "\n\nTicket: "
+  allow-empty: true
+  data-type: integer
+meta_element_changelog:
+  change-type-key: change-type
+  commit-title-key: commit-title
+  before-group-heading: "["
+  after-group-heading: "]"
+  display_aliases:
+    fix: fixed
+    add: added
+    refactor: refactored
+    clean-up: cleaned

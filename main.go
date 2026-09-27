@@ -6,7 +6,7 @@ import (
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 
-	"voxbox/internal/store"
+	"livingspeech/internal/store"
 )
 
 //go:embed all:frontend/dist
@@ -25,13 +25,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	vox := NewVoxService(dataDir)
+	speech := NewSpeechService(dataDir)
 
 	app := application.New(application.Options{
-		Name:        "VoxBox",
+		Name:        "LivingSpeech",
 		Description: "Menu bar text-to-speech for OpenVox",
 		Services: []application.Service{
-			application.NewService(vox),
+			application.NewService(speech),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
@@ -44,7 +44,7 @@ func main() {
 
 	window := app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Name:             "panel",
-		Title:            "VoxBox",
+		Title:            "LivingSpeech",
 		Width:            panelWidth,
 		Height:           240,
 		Frameless:        true,
@@ -63,15 +63,15 @@ func main() {
 	})
 
 	menu := app.NewMenu()
-	menu.Add("Quit VoxBox").OnClick(func(*application.Context) { app.Quit() })
+	menu.Add("Quit LivingSpeech").OnClick(func(*application.Context) { app.Quit() })
 
 	tray := app.SystemTray.New()
 	tray.SetTemplateIcon(trayIcon)
-	tray.SetTooltip("VoxBox")
+	tray.SetTooltip("LivingSpeech")
 	tray.SetMenu(menu)
 	tray.AttachWindow(window).WindowOffset(panelOffset)
 
-	vox.attach(app, window, tray)
+	speech.attach(app, window, tray)
 
 	if err := app.Run(); err != nil {
 		log.Fatal(err)

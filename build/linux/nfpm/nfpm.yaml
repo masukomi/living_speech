@@ -3,26 +3,26 @@
 #
 # The lines below are called `modelines`. See `:help modeline`
 
-name: "voxbox"
+name: "livingspeech"
 arch: ${GOARCH}
 platform: "linux"
-version: "0.1.0"
+version: "0.0.1"
 section: "default"
 priority: "extra"
 maintainer: ${GIT_COMMITTER_NAME} <${GIT_COMMITTER_EMAIL}>
-description: "A voxbox application"
-vendor: "My Company"
+description: "Menu bar text-to-speech for OpenVox"
+vendor: "masukomi"
 homepage: "https://wails.io"
 license: "MIT"
 release: "1"
 
 contents:
-  - src: "./bin/voxbox"
-    dst: "/usr/local/bin/voxbox"
+  - src: "./bin/livingspeech"
+    dst: "/usr/local/bin/livingspeech"
   - src: "./build/appicon.png"
-    dst: "/usr/share/icons/hicolor/128x128/apps/voxbox.png"
-  - src: "./build/linux/voxbox.desktop"
-    dst: "/usr/share/applications/voxbox.desktop"
+    dst: "/usr/share/icons/hicolor/128x128/apps/livingspeech.png"
+  - src: "./build/linux/livingspeech.desktop"
+    dst: "/usr/share/applications/livingspeech.desktop"
 
 # Default dependencies for the GTK4 + WebKitGTK 6.0 stack (Ubuntu 24.04+ / Debian 13+)
 depends:

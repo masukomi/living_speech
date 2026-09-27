@@ -1,4 +1,4 @@
-# VoxBox
+# LivingSpeech
 
 A macOS menu bar text-to-speech app for the [OpenVox](https://openvox.app) local API, built with Go and Wails v3.
 
@@ -7,7 +7,7 @@ A macOS menu bar text-to-speech app for the [OpenVox](https://openvox.app) local
 - Phrases from the last 24 hours appear under **Recent**. Click one to put it back in the box.
 - The gear opens settings for model, language, and voice. The lists are fetched fresh each time.
 
-Settings and recent phrases are stored in `~/Library/Application Support/VoxBox/`.
+Settings and recent phrases are stored in `~/Library/Application Support/LivingSpeech/`.
 
 ## Development
 

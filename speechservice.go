@@ -14,8 +14,8 @@ import (
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 
-	"voxbox/internal/openvox"
-	"voxbox/internal/store"
+	"livingspeech/internal/openvox"
+	"livingspeech/internal/store"
 )
 
 const previewText = "Hello! This is how I sound."
@@ -44,8 +44,8 @@ type Status struct {
 	Settings  store.Settings `json:"settings"`
 }
 
-// VoxService is bound to the frontend.
-type VoxService struct {
+// SpeechService is bound to the frontend.
+type SpeechService struct {
 	client   *openvox.Client
 	settings *store.SettingsStore
 	recent   *store.RecentStore
@@ -60,10 +60,10 @@ type VoxService struct {
 	loaded   map[string]bool
 }
 
-func NewVoxService(dataDir string) *VoxService {
+func NewSpeechService(dataDir string) *SpeechService {
 	ss := store.NewSettingsStore(dataDir)
 	s, _ := ss.Load()
-	return &VoxService{
+	return &SpeechService{
 		client:   openvox.New(s.BaseURL),
 		settings: ss,
 		recent:   store.NewRecentStore(dataDir),
@@ -71,11 +71,11 @@ func NewVoxService(dataDir string) *VoxService {
 	}
 }
 
-func (v *VoxService) attach(app *application.App, window *application.WebviewWindow, tray *application.SystemTray) {
+func (v *SpeechService) attach(app *application.App, window *application.WebviewWindow, tray *application.SystemTray) {
 	v.app, v.window, v.tray = app, window, tray
 }
 
-func (v *VoxService) ServiceStartup(ctx context.Context, _ application.ServiceOptions) error {
+func (v *SpeechService) ServiceStartup(ctx context.Context, _ application.ServiceOptions) error {
 	// Resolve defaults and warm the model without blocking startup.
 	go func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
@@ -93,7 +93,7 @@ func (v *VoxService) ServiceStartup(ctx context.Context, _ application.ServiceOp
 }
 
 // Status checks the server and returns the effective settings.
-func (v *VoxService) Status() Status {
+func (v *SpeechService) Status() Status {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	s, err := v.resolveSettings(ctx)
@@ -104,26 +104,26 @@ func (v *VoxService) Status() Status {
 	return Status{Reachable: true, Settings: s}
 }
 
-func (v *VoxService) ServerURL() string { return v.client.BaseURL }
+func (v *SpeechService) ServerURL() string { return v.client.BaseURL }
 
-func (v *VoxService) ListModels() ([]openvox.Option, error) {
+func (v *SpeechService) ListModels() ([]openvox.Option, error) {
 	return v.client.Models(context.Background())
 }
 
-func (v *VoxService) ListLanguages(model string) ([]openvox.Option, error) {
+func (v *SpeechService) ListLanguages(model string) ([]openvox.Option, error) {
 	return v.client.Languages(context.Background(), model)
 }
 
-func (v *VoxService) ListVoices(model, language string) ([]openvox.Option, error) {
+func (v *SpeechService) ListVoices(model, language string) ([]openvox.Option, error) {
 	return v.client.Voices(context.Background(), model, language)
 }
 
-func (v *VoxService) GetSettings() (store.Settings, error) {
+func (v *SpeechService) GetSettings() (store.Settings, error) {
 	return v.settings.Load()
 }
 
 // SaveSettings stores the selection and warms the model if it changed.
-func (v *VoxService) SaveSettings(s store.Settings) error {
+func (v *SpeechService) SaveSettings(s store.Settings) error {
 	old, _ := v.settings.Load()
 	s.BaseURL = old.BaseURL
 	if err := v.settings.Save(s); err != nil {
@@ -139,13 +139,13 @@ func (v *VoxService) SaveSettings(s store.Settings) error {
 	return nil
 }
 
-func (v *VoxService) Recent() ([]store.RecentEntry, error) {
+func (v *SpeechService) Recent() ([]store.RecentEntry, error) {
 	return v.recent.List()
 }
 
 // Speak starts speaking text and records it in the recent list. Audio arrives
 // via speech:chunk events; speech:done fires at the end. Returns the utterance ID.
-func (v *VoxService) Speak(text string) (int, error) {
+func (v *SpeechService) Speak(text string) (int, error) {
 	if err := v.recent.Add(text); err != nil {
 		log.Printf("saving recent: %v", err)
 	}
@@ -153,12 +153,12 @@ func (v *VoxService) Speak(text string) (int, error) {
 }
 
 // Preview speaks a sample sentence with the current settings.
-func (v *VoxService) Preview() int {
+func (v *SpeechService) Preview() int {
 	return v.startSpeech(previewText)
 }
 
 // StopSpeaking cancels any in-flight generation.
-func (v *VoxService) StopSpeaking() {
+func (v *SpeechService) StopSpeaking() {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 	if v.cancel != nil {
@@ -167,7 +167,7 @@ func (v *VoxService) StopSpeaking() {
 	}
 }
 
-func (v *VoxService) startSpeech(text string) int {
+func (v *SpeechService) startSpeech(text string) int {
 	v.mu.Lock()
 	if v.cancel != nil {
 		v.cancel()
@@ -191,7 +191,7 @@ func (v *VoxService) startSpeech(text string) int {
 	return id
 }
 
-func (v *VoxService) speak(ctx context.Context, id int, text string) error {
+func (v *SpeechService) speak(ctx context.Context, id int, text string) error {
 	s, err := v.resolveSettings(ctx)
 	if err != nil {
 		return err
@@ -226,7 +226,7 @@ func (v *VoxService) speak(ctx context.Context, id int, text string) error {
 
 // resolveSettings fills in any missing model/language/voice with the first
 // option the server offers, persisting the result.
-func (v *VoxService) resolveSettings(ctx context.Context) (store.Settings, error) {
+func (v *SpeechService) resolveSettings(ctx context.Context) (store.Settings, error) {
 	s, err := v.settings.Load()
 	if err != nil {
 		return s, err
@@ -272,7 +272,7 @@ func (v *VoxService) resolveSettings(ctx context.Context) (store.Settings, error
 	return s, nil
 }
 
-func (v *VoxService) ensureLoaded(ctx context.Context, model string) error {
+func (v *SpeechService) ensureLoaded(ctx context.Context, model string) error {
 	v.mu.Lock()
 	done := v.loaded[model]
 	v.mu.Unlock()
@@ -307,7 +307,7 @@ func containsID(opts []openvox.Option, id string) bool {
 // --- window helpers ---
 
 // ScreenHeight returns the height of the screen the panel is on, in points.
-func (v *VoxService) ScreenHeight() int {
+func (v *SpeechService) ScreenHeight() int {
 	if scr, err := v.window.GetScreen(); err == nil && scr != nil && scr.Size.Height > 0 {
 		return scr.Size.Height
 	}
@@ -318,7 +318,7 @@ func (v *VoxService) ScreenHeight() int {
 }
 
 // SetPanelHeight resizes the panel to fit its content, keeping it pinned under the menu bar.
-func (v *VoxService) SetPanelHeight(height int) {
+func (v *SpeechService) SetPanelHeight(height int) {
 	maxH := v.ScreenHeight() * 9 / 10
 	height = max(120, min(height, maxH))
 	w, h := v.window.Size()
@@ -331,10 +331,10 @@ func (v *VoxService) SetPanelHeight(height int) {
 	}
 }
 
-func (v *VoxService) HidePanel() {
+func (v *SpeechService) HidePanel() {
 	v.window.Hide()
 }
 
-func (v *VoxService) Quit() {
+func (v *SpeechService) Quit() {
 	v.app.Quit()
 }

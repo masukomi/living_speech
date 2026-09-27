@@ -1,6 +1,6 @@
 import "./style.css";
 import {Events} from "@wailsio/runtime";
-import {VoxService} from "../bindings/voxbox";
+import {SpeechService} from "../bindings/livingspeech";
 import * as audio from "./audio";
 import {initSettings, refreshSettings} from "./settings";
 
@@ -25,7 +25,7 @@ function fitPanel() {
     fitQueued = true;
     requestAnimationFrame(() => {
         fitQueued = false;
-        void VoxService.SetPanelHeight(Math.ceil(panel.getBoundingClientRect().height));
+        void SpeechService.SetPanelHeight(Math.ceil(panel.getBoundingClientRect().height));
     });
 }
 
@@ -49,7 +49,7 @@ function showBanner(msg: string) {
 
 async function refreshStatus() {
     try {
-        const s = await VoxService.Status();
+        const s = await SpeechService.Status();
         if (s.reachable) {
             statusEl.textContent = s.settings.model;
             showBanner("");
@@ -65,7 +65,7 @@ async function refreshStatus() {
 // --- recent ---
 
 async function refreshRecent() {
-    const entries = (await VoxService.Recent()) ?? [];
+    const entries = (await SpeechService.Recent()) ?? [];
     recentList.replaceChildren();
     if (entries.length === 0) {
         const li = document.createElement("li");
@@ -102,7 +102,7 @@ function startPlayback(id: number) {
 
 async function speak(text: string) {
     showBanner("");
-    const id = await VoxService.Speak(text);
+    const id = await SpeechService.Speak(text);
     startPlayback(id);
     void refreshRecent();
 }
@@ -130,7 +130,7 @@ stopBtn.addEventListener("click", () => {
     stoppedUpTo = activeID;
     audio.stop();
     stopBtn.hidden = true;
-    void VoxService.StopSpeaking();
+    void SpeechService.StopSpeaking();
 });
 
 input.addEventListener("input", autosize);
@@ -161,8 +161,8 @@ function showSettings(show: boolean) {
 document.getElementById("open-settings")!.addEventListener("click", () => showSettings(true));
 document.getElementById("close-settings")!.addEventListener("click", () => showSettings(false));
 document.getElementById("refresh")!.addEventListener("click", () => void refreshSettings(refreshStatus).then(fitPanel));
-document.getElementById("preview")!.addEventListener("click", async () => startPlayback(await VoxService.Preview()));
-document.getElementById("quit")!.addEventListener("click", () => void VoxService.Quit());
+document.getElementById("preview")!.addEventListener("click", async () => startPlayback(await SpeechService.Preview()));
+document.getElementById("quit")!.addEventListener("click", () => void SpeechService.Quit());
 initSettings(refreshStatus);
 
 // Each time the panel is shown it becomes the key window.
@@ -174,8 +174,8 @@ window.addEventListener("focus", () => {
 });
 
 async function init() {
-    document.getElementById("server-url")!.textContent = await VoxService.ServerURL();
-    screenHeight = (await VoxService.ScreenHeight()) || screenHeight;
+    document.getElementById("server-url")!.textContent = await SpeechService.ServerURL();
+    screenHeight = (await SpeechService.ScreenHeight()) || screenHeight;
     autosize();
     await Promise.all([refreshRecent(), refreshStatus()]);
 }

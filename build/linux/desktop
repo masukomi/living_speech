@@ -1,13 +1,13 @@
 [Desktop Entry]
 Version=1.0
-Name=My Product
-Comment=A voxbox application
+Name=LivingSpeech
+Comment=Menu bar text-to-speech for OpenVox
 # The Exec line includes %u to pass the URL to the application
-Exec=/usr/local/bin/voxbox %u
+Exec=/usr/local/bin/livingspeech %u
 Terminal=false
 Type=Application
-Icon=voxbox
+Icon=livingspeech
 Categories=Utility;
-StartupWMClass=voxbox
+StartupWMClass=livingspeech
 
  

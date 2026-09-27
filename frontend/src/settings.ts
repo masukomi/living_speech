@@ -1,6 +1,6 @@
-import {VoxService} from "../bindings/voxbox";
-import type {Option as VoxOption} from "../bindings/voxbox/internal/openvox/models";
-import type {Settings} from "../bindings/voxbox/internal/store/models";
+import {SpeechService} from "../bindings/livingspeech";
+import type {Option as SpeechOption} from "../bindings/livingspeech/internal/openvox/models";
+import type {Settings} from "../bindings/livingspeech/internal/store/models";
 
 const modelSel = document.getElementById("model") as HTMLSelectElement;
 const langSel = document.getElementById("language") as HTMLSelectElement;
@@ -8,7 +8,7 @@ const voiceSel = document.getElementById("voice") as HTMLSelectElement;
 const errorBox = document.getElementById("settings-error") as HTMLDivElement;
 
 // Fill a select and return the chosen value: `preferred` if still offered, else the first option.
-function fill(sel: HTMLSelectElement, options: VoxOption[], preferred: string, emptyLabel: string): string {
+function fill(sel: HTMLSelectElement, options: SpeechOption[], preferred: string, emptyLabel: string): string {
     sel.replaceChildren();
     if (options.length === 0) {
         sel.append(new Option(emptyLabel, ""));
@@ -30,14 +30,14 @@ function showError(msg: string) {
 }
 
 async function loadVoices(model: string, language: string, preferred: string): Promise<string> {
-    const voices = (await VoxService.ListVoices(model, language)) ?? [];
+    const voices = (await SpeechService.ListVoices(model, language)) ?? [];
     return fill(voiceSel, voices, preferred, "No voices");
 }
 
 async function loadLanguages(model: string, preferred: string): Promise<string> {
-    let langs: VoxOption[] = [];
+    let langs: SpeechOption[] = [];
     try {
-        langs = (await VoxService.ListLanguages(model)) ?? [];
+        langs = (await SpeechService.ListLanguages(model)) ?? [];
     } catch {
         // Language is optional for some models.
     }
@@ -45,7 +45,7 @@ async function loadLanguages(model: string, preferred: string): Promise<string> 
 }
 
 async function save() {
-    await VoxService.SaveSettings({
+    await SpeechService.SaveSettings({
         model: modelSel.value,
         language: langSel.value,
         voice: voiceSel.value,
@@ -56,8 +56,8 @@ async function save() {
 export async function refreshSettings(onChange: () => void): Promise<void> {
     showError("");
     try {
-        const saved = await VoxService.GetSettings();
-        const models = (await VoxService.ListModels()) ?? [];
+        const saved = await SpeechService.GetSettings();
+        const models = (await SpeechService.ListModels()) ?? [];
         const model = fill(modelSel, models, saved.model, "No models");
         if (!model) return;
         const language = await loadLanguages(model, saved.language);

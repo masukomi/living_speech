@@ -1,4 +1,4 @@
-// Package store persists VoxBox settings and recent phrases as JSON files.
+// Package store persists LivingSpeech settings and recent phrases as JSON files.
 package store
 
 import (
@@ -41,13 +41,13 @@ func (s *SettingsStore) Save(v Settings) error {
 	return writeJSON(s.path, v)
 }
 
-// DefaultDir is ~/Library/Application Support/VoxBox on macOS.
+// DefaultDir is ~/Library/Application Support/LivingSpeech on macOS.
 func DefaultDir() (string, error) {
 	base, err := os.UserConfigDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(base, "VoxBox"), nil
+	return filepath.Join(base, "LivingSpeech"), nil
 }
 
 func readJSON(path string, v any) error {

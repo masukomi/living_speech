@@ -8,7 +8,7 @@
         AllowPromptForPassword="false">
     </Settings>
     <Installer
-        Path="voxbox"
+        Path="livingspeech"
         Arguments=""
         InstallLocation="C:\Program Files\My Company\My Product">
     </Installer>
@@ -18,17 +18,17 @@
         PublisherName="CN=My Company"
         PublisherDisplayName="My Company"
         Version="0.1.0.0"
-        PackageDescription="A voxbox application">
+        PackageDescription="Menu bar text-to-speech for OpenVox">
         <Capabilities>
             <Capability Name="runFullTrust" />
             
         </Capabilities>
         <Applications>
             <Application
-                Id="com.example.voxbox"
-                Description="A voxbox application"
+                Id="org.masukomi.livingspeech"
+                Description="Menu bar text-to-speech for OpenVox"
                 DisplayName="My Product"
-                ExecutableName="voxbox"
+                ExecutableName="livingspeech"
                 EntryPoint="Windows.FullTrustApplication">
                 
             </Application>
@@ -43,11 +43,11 @@
             <Framework>false</Framework>
             <DisplayName>My Product</DisplayName>
             <PublisherDisplayName>My Company</PublisherDisplayName>
-            <Description>A voxbox application</Description>
+            <Description>Menu bar text-to-speech for OpenVox</Description>
             <Logo>Assets\AppIcon.png</Logo>
         </Properties>
     </PackageInformation>
-    <SaveLocation PackagePath="voxbox.msix" />
+    <SaveLocation PackagePath="livingspeech.msix" />
     <PackageIntegrity>
         <CertificatePath></CertificatePath>
     </PackageIntegrity>
