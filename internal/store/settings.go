@@ -14,6 +14,8 @@ type Settings struct {
 	Model    string `json:"model"`
 	Language string `json:"language"`
 	Voice    string `json:"voice"`
+	// FontSize is the UI's base font size in points; 0 means the default.
+	FontSize int    `json:"fontSize,omitempty"`
 	BaseURL  string `json:"baseURL,omitempty"`
 }
 

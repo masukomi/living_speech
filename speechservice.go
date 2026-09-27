@@ -141,6 +141,9 @@ func (v *SpeechService) GetSettings() (store.Settings, error) {
 func (v *SpeechService) SaveSettings(s store.Settings) error {
 	old, _ := v.settings.Load()
 	s.BaseURL = old.BaseURL
+	if s.FontSize == 0 {
+		s.FontSize = old.FontSize
+	}
 	if err := v.settings.Save(s); err != nil {
 		return err
 	}
@@ -343,10 +346,10 @@ func (v *SpeechService) ScreenHeight() int {
 	return 900
 }
 
-// SetPanelHeight resizes the panel to fit its content, keeping its top edge in place.
-func (v *SpeechService) SetPanelHeight(height int) {
+// SetPanelSize resizes the panel to fit its content, keeping its top-left corner in place.
+func (v *SpeechService) SetPanelSize(width, height int) {
 	maxH := v.ScreenHeight() * 9 / 10
-	v.panel.SetHeight(max(120, min(height, maxH)))
+	v.panel.SetSize(max(200, width), max(120, min(height, maxH)))
 }
 
 func (v *SpeechService) HidePanel() {

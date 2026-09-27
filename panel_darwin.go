@@ -5,13 +5,14 @@ package main
 #cgo LDFLAGS: -framework Cocoa
 #import <Cocoa/Cocoa.h>
 
-// Resize the window to `height` points while keeping its top edge where it is
-// (Cocoa's default is to keep the bottom edge). If that would push the bottom
-// off the screen, slide the window up just enough to keep it visible.
-static void setHeightKeepingTop(void* nsWindow, int height) {
+// Resize the window while keeping its top-left corner where it is (Cocoa's
+// default is to keep the bottom-left). If that would push it off the bottom or
+// right of the screen, slide it just enough to keep it visible.
+static void setSizeKeepingTopLeft(void* nsWindow, int width, int height) {
 	NSWindow* window = (NSWindow*)nsWindow;
 	NSRect frame = [window frame];
 	CGFloat top = NSMaxY(frame);
+	frame.size.width = width;
 	frame.size.height = height;
 	frame.origin.y = top - height;
 
@@ -20,6 +21,9 @@ static void setHeightKeepingTop(void* nsWindow, int height) {
 	if (frame.origin.y < NSMinY(visible)) {
 		frame.origin.y = MIN(NSMinY(visible), NSMaxY(visible) - height);
 	}
+	if (NSMaxX(frame) > NSMaxX(visible)) {
+		frame.origin.x = MAX(NSMinX(visible), NSMaxX(visible) - width);
+	}
 	[window setFrame:frame display:YES animate:NO];
 }
 */
@@ -27,10 +31,10 @@ import "C"
 
 import "github.com/wailsapp/wails/v3/pkg/application"
 
-func setHeightKeepingTop(window *application.WebviewWindow, height int) {
+func setSizeKeepingTopLeft(window *application.WebviewWindow, width, height int) {
 	application.InvokeSync(func() {
 		if ptr := window.NativeWindow(); ptr != nil {
-			C.setHeightKeepingTop(ptr, C.int(height))
+			C.setSizeKeepingTopLeft(ptr, C.int(width), C.int(height))
 		}
 	})
 }

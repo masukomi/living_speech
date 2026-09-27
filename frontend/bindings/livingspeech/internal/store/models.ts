@@ -16,5 +16,10 @@ export interface Settings {
     "model": string;
     "language": string;
     "voice": string;
+
+    /**
+     * FontSize is the UI's base font size in points; 0 means the default.
+     */
+    "fontSize"?: number;
     "baseURL"?: string;
 }

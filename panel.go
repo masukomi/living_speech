@@ -55,12 +55,12 @@ func (p *Panel) Hide() {
 	p.window.Hide()
 }
 
-// SetHeight resizes the panel, keeping its top edge in place.
-func (p *Panel) SetHeight(height int) {
-	if _, h := p.window.Size(); h == height {
+// SetSize resizes the panel, keeping its top-left corner in place.
+func (p *Panel) SetSize(width, height int) {
+	if w, h := p.window.Size(); w == width && h == height {
 		return
 	}
-	setHeightKeepingTop(p.window, height)
+	setSizeKeepingTopLeft(p.window, width, height)
 }
 
 // savedPosition returns the remembered position if it's still on a connected

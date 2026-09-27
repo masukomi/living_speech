@@ -5,6 +5,7 @@ import type {Settings} from "../bindings/livingspeech/internal/store/models";
 const modelSel = document.getElementById("model") as HTMLSelectElement;
 const langSel = document.getElementById("language") as HTMLSelectElement;
 const voiceSel = document.getElementById("voice") as HTMLSelectElement;
+const fontInput = document.getElementById("font-size") as HTMLInputElement;
 const errorBox = document.getElementById("settings-error") as HTMLDivElement;
 
 // Fill a select and return the chosen value: `preferred` if still offered, else the first option.
@@ -44,11 +45,23 @@ async function loadLanguages(model: string, preferred: string): Promise<string> 
     return fill(langSel, langs, preferred, "Not required");
 }
 
+export const DEFAULT_FONT_SIZE = 13;
+const MIN_FONT_SIZE = 10;
+const MAX_FONT_SIZE = 28;
+
+/** The font size in the input, clamped to a usable range. */
+function fontSizeValue(): number {
+    const n = Math.round(Number(fontInput.value));
+    if (!Number.isFinite(n) || n <= 0) return DEFAULT_FONT_SIZE;
+    return Math.min(MAX_FONT_SIZE, Math.max(MIN_FONT_SIZE, n));
+}
+
 async function save() {
     await SpeechService.SaveSettings({
         model: modelSel.value,
         language: langSel.value,
         voice: voiceSel.value,
+        fontSize: fontInput.value === "" ? 0 : fontSizeValue(), // 0 keeps the saved size
     } satisfies Settings);
 }
 
@@ -57,6 +70,7 @@ export async function refreshSettings(onChange: () => void): Promise<void> {
     showError("");
     try {
         const saved = await SpeechService.GetSettings();
+        fontInput.value = String(saved.fontSize || DEFAULT_FONT_SIZE);
         const models = (await SpeechService.ListModels()) ?? [];
         const model = fill(modelSel, models, saved.model, "No models");
         if (!model) return;
@@ -71,7 +85,22 @@ export async function refreshSettings(onChange: () => void): Promise<void> {
     }
 }
 
-export function initSettings(onChange: () => void) {
+/**
+ * Wire up the settings controls. onChange runs after a voice change is saved;
+ * onFontSize runs as the font size is edited, so the UI can resize live.
+ */
+export function initSettings(onChange: () => void, onFontSize: (size: number) => void) {
+    let fontSaveTimer: ReturnType<typeof setTimeout>;
+    fontInput.addEventListener("input", () => {
+        if (fontInput.value === "") return; // mid-edit
+        onFontSize(fontSizeValue());
+        clearTimeout(fontSaveTimer);
+        fontSaveTimer = setTimeout(() => void save().catch((e) => showError(String(e))), 400);
+    });
+    fontInput.addEventListener("change", () => {
+        fontInput.value = String(fontSizeValue()); // snap out-of-range entries
+    });
+
     const guard = (fn: () => Promise<void>) => async () => {
         showError("");
         try {

@@ -1,3 +1,6 @@
+/* 1rem = the font size chosen in settings (13px by default); all other sizes are in rem. */
+html { font-size: 13px; }
+
 :root {
     color-scheme: light dark;
     --text: rgba(0, 0, 0, 0.88);
@@ -32,16 +35,17 @@ html, body {
     margin: 0;
     background: transparent;
     color: var(--text);
-    font: 13px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+    font: 1rem/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
     -webkit-user-select: none;
     user-select: none;
     overflow: hidden;
 }
 
 #panel {
+    width: 29.25rem; /* 380px at the default 13px */
     background: var(--panel-bg);
-    border-radius: 14px;
-    padding: 10px 12px 12px;
+    border-radius: 1.077rem;
+    padding: 0.769rem 0.923rem 0.923rem;
 }
 
 [hidden] { display: none !important; }
@@ -49,9 +53,9 @@ html, body {
 .bar {
     display: flex;
     align-items: center;
-    gap: 6px;
-    margin-bottom: 8px;
-    min-height: 24px;
+    gap: 0.462rem;
+    margin-bottom: 0.615rem;
+    min-height: 1.846rem;
 }
 
 /* The header bar is the handle for dragging the panel around. */
@@ -60,26 +64,26 @@ html, body {
 /* Set briefly on double-click so macOS doesn't zoom or minimize the panel. */
 .no-drag .bar { --wails-draggable: no-drag; }
 
-.title { font-weight: 600; font-size: 13px; }
+.title { font-weight: 600; font-size: 1rem; }
 
 .status {
     margin-left: auto;
-    font-size: 11px;
+    font-size: 0.846rem;
     color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 200px;
+    max-width: 15.385rem;
 }
 
 .icon-btn {
     border: 0;
     background: transparent;
     color: var(--text-secondary);
-    width: 24px;
-    height: 24px;
-    padding: 3px;
-    border-radius: 6px;
+    width: 1.846rem;
+    height: 1.846rem;
+    padding: 0.231rem;
+    border-radius: 0.462rem;
     cursor: default;
     display: inline-flex;
     align-items: center;
@@ -87,8 +91,8 @@ html, body {
 }
 .icon-btn:hover { background: var(--hover); color: var(--text); }
 .icon-btn svg {
-    width: 16px;
-    height: 16px;
+    width: 1.231rem;
+    height: 1.231rem;
     fill: none;
     stroke: currentColor;
     stroke-width: 1.8;
@@ -103,12 +107,12 @@ html, body {
     width: 100%;
     resize: none;
     border: 1px solid var(--field-border);
-    border-radius: 10px;
+    border-radius: 0.769rem;
     background: var(--field);
     color: var(--text);
-    font: 15px/1.45 -apple-system, BlinkMacSystemFont, sans-serif;
-    padding: 8px 10px;
-    min-height: 60px;
+    font: 1.154rem/1.45 -apple-system, BlinkMacSystemFont, sans-serif;
+    padding: 0.615rem 0.769rem;
+    min-height: 4.615rem;
     overflow-y: hidden;
     outline: none;
     -webkit-user-select: text;
@@ -116,12 +120,12 @@ html, body {
     /* Always allow WebKit's native menu here: it carries the spelling suggestions. */
     --default-contextmenu: show;
 }
-#input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.25); }
+#input:focus { border-color: var(--accent); box-shadow: 0 0 0 0.231rem rgba(10, 132, 255, 0.25); }
 #input::placeholder { color: var(--text-muted); }
 
 .hint {
-    margin: 5px 2px 10px;
-    font-size: 11px;
+    margin: 0.385rem 0.154rem 0.769rem;
+    font-size: 0.846rem;
     color: var(--text-muted);
 }
 
@@ -129,9 +133,9 @@ html, body {
    Reserved space, so showing it never resizes the panel. */
 .progress {
     position: relative;
-    height: 3px;
-    margin: -4px 2px 8px;
-    border-radius: 2px;
+    height: 0.231rem;
+    margin: -0.308rem 0.154rem 0.615rem;
+    border-radius: 0.154rem;
     background: var(--hover);
     overflow: hidden;
     opacity: 0;
@@ -150,8 +154,8 @@ html, body {
 .progress .seg.waiting { background: #bf5af2; }
 
 .section-label {
-    margin: 0 2px 4px;
-    font-size: 11px;
+    margin: 0 0.154rem 0.308rem;
+    font-size: 0.846rem;
     font-weight: 500;
     color: var(--text-secondary);
 }
@@ -160,12 +164,12 @@ html, body {
     list-style: none;
     margin: 0;
     padding: 0;
-    max-height: 180px;
+    max-height: 13.846rem;
     overflow-y: auto;
 }
 .recent li {
-    padding: 5px 8px;
-    border-radius: 6px;
+    padding: 0.385rem 0.615rem;
+    border-radius: 0.462rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -176,39 +180,40 @@ html, body {
 .recent .empty:hover { background: transparent; }
 
 .banner {
-    font-size: 12px;
+    font-size: 0.923rem;
     background: var(--warn-bg);
     color: var(--warn-text);
-    border-radius: 8px;
-    padding: 6px 8px;
-    margin-bottom: 8px;
+    border-radius: 0.615rem;
+    padding: 0.462rem 0.615rem;
+    margin-bottom: 0.615rem;
 }
 
 .field {
     display: block;
-    font-size: 11px;
+    font-size: 0.846rem;
     color: var(--text-secondary);
-    margin-bottom: 10px;
+    margin-bottom: 0.769rem;
 }
-.field select {
+.field select,
+.field input {
     display: block;
     width: 100%;
-    margin-top: 4px;
-    font-size: 13px;
+    margin-top: 0.308rem;
+    font-size: 1rem;
 }
 
 .button {
     width: 100%;
-    margin: 2px 0 10px;
-    padding: 5px 10px;
-    font-size: 13px;
+    margin: 0.154rem 0 0.769rem;
+    padding: 0.385rem 0.769rem;
+    font-size: 1rem;
 }
 
 .settings-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 11px;
+    font-size: 0.846rem;
     color: var(--text-muted);
 }
 
@@ -216,7 +221,7 @@ html, body {
     border: 0;
     background: none;
     color: var(--text-secondary);
-    font-size: 11px;
+    font-size: 0.846rem;
     padding: 0;
 }
 .link-btn:hover { color: var(--text); text-decoration: underline; }

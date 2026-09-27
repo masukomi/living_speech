@@ -3,7 +3,7 @@ import {Events} from "@wailsio/runtime";
 import {SpeechService} from "../bindings/livingspeech";
 import * as audio from "./audio";
 import * as progress from "./progress";
-import {initSettings, refreshSettings} from "./settings";
+import {DEFAULT_FONT_SIZE, initSettings, refreshSettings} from "./settings";
 
 const panel = document.getElementById("panel") as HTMLDivElement;
 const mainView = document.getElementById("main-view") as HTMLElement;
@@ -26,7 +26,8 @@ function fitPanel() {
     fitQueued = true;
     requestAnimationFrame(() => {
         fitQueued = false;
-        void SpeechService.SetPanelHeight(Math.ceil(panel.getBoundingClientRect().height));
+        const rect = panel.getBoundingClientRect();
+        void SpeechService.SetPanelSize(Math.ceil(rect.width), Math.ceil(rect.height));
     });
 }
 
@@ -173,7 +174,7 @@ document.getElementById("close-settings")!.addEventListener("click", () => showS
 document.getElementById("refresh")!.addEventListener("click", () => void refreshSettings(refreshStatus).then(fitPanel));
 document.getElementById("preview")!.addEventListener("click", async () => startPlayback(await SpeechService.Preview()));
 document.getElementById("quit")!.addEventListener("click", () => void SpeechService.Quit());
-initSettings(refreshStatus);
+initSettings(refreshStatus, applyFontSize);
 
 // A double-click on a drag region would trigger macOS's title-bar zoom/minimize.
 // The second mousedown precedes the dblclick, so turn dragging off just for it.
@@ -191,7 +192,18 @@ window.addEventListener("focus", () => {
     void refreshStatus();
 });
 
+// Everything in the stylesheet is sized in rem, so the root font size scales the whole UI.
+function applyFontSize(size: number) {
+    document.documentElement.style.fontSize = `${size}px`;
+    autosize(); // re-measures the text box and refits the window
+}
+
 async function init() {
+    try {
+        applyFontSize((await SpeechService.GetSettings()).fontSize || DEFAULT_FONT_SIZE);
+    } catch {
+        // keep the stylesheet default
+    }
     document.getElementById("server-url")!.textContent = await SpeechService.ServerURL();
     screenHeight = (await SpeechService.ScreenHeight()) || screenHeight;
     autosize();

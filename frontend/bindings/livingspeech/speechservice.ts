@@ -75,10 +75,10 @@ export function ServerURL(): $CancellablePromise<string> {
 }
 
 /**
- * SetPanelHeight resizes the panel to fit its content, keeping its top edge in place.
+ * SetPanelSize resizes the panel to fit its content, keeping its top-left corner in place.
  */
-export function SetPanelHeight(height: number): $CancellablePromise<void> {
-    return $Call.ByID(532468258, height);
+export function SetPanelSize(width: number, height: number): $CancellablePromise<void> {
+    return $Call.ByID(2202622268, width, height);
 }
 
 /**
