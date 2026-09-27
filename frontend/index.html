@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>VoxBox</title>
+</head>
+<body>
+<div id="panel">
+    <!-- Main view -->
+    <section id="main-view">
+        <header class="bar">
+            <span class="title">Speak</span>
+            <span id="status" class="status"></span>
+            <button id="stop" class="icon-btn" title="Stop" hidden>
+                <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+            </button>
+            <button id="open-settings" class="icon-btn" title="Settings">
+                <svg viewBox="0 0 24 24"><path d="M10.3 4.3a1.7 1.7 0 0 1 3.4 0 1.7 1.7 0 0 0 2.6 1.1 1.7 1.7 0 0 1 2.3 2.3 1.7 1.7 0 0 0 1.1 2.6 1.7 1.7 0 0 1 0 3.4 1.7 1.7 0 0 0-1.1 2.6 1.7 1.7 0 0 1-2.3 2.3 1.7 1.7 0 0 0-2.6 1.1 1.7 1.7 0 0 1-3.4 0 1.7 1.7 0 0 0-2.6-1.1 1.7 1.7 0 0 1-2.3-2.3 1.7 1.7 0 0 0-1.1-2.6 1.7 1.7 0 0 1 0-3.4 1.7 1.7 0 0 0 1.1-2.6 1.7 1.7 0 0 1 2.3-2.3 1.7 1.7 0 0 0 2.6-1.1z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+        </header>
+
+        <div id="banner" class="banner" hidden></div>
+
+        <textarea id="input" rows="1" placeholder="Type to speak" spellcheck="true" autofocus></textarea>
+        <p class="hint">Return to speak · Shift+Return for a new line</p>
+
+        <div id="recent-section">
+            <h2 class="section-label">Recent</h2>
+            <ul id="recent" class="recent"></ul>
+        </div>
+    </section>
+
+    <!-- Settings view -->
+    <section id="settings-view" hidden>
+        <header class="bar">
+            <button id="close-settings" class="icon-btn" title="Back">
+                <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+            <span class="title">Settings</span>
+            <button id="refresh" class="icon-btn" title="Refresh lists">
+                <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>
+            </button>
+        </header>
+
+        <label class="field">Model
+            <select id="model"></select>
+        </label>
+        <label class="field">Language
+            <select id="language"></select>
+        </label>
+        <label class="field">Voice
+            <select id="voice"></select>
+        </label>
+
+        <button id="preview" class="button">Preview voice</button>
+        <div id="settings-error" class="banner" hidden></div>
+
+        <footer class="settings-footer">
+            <span id="server-url"></span>
+            <button id="quit" class="link-btn">Quit VoxBox</button>
+        </footer>
+    </section>
+</div>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
