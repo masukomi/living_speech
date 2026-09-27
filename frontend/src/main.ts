@@ -53,7 +53,8 @@ async function refreshStatus() {
     try {
         const s = await SpeechService.Status();
         if (s.reachable) {
-            statusEl.textContent = s.settings.model;
+            const avg = s.averageSeconds == null ? "?" : s.averageSeconds.toFixed(1);
+            statusEl.textContent = s.settings.model ? `${s.settings.model} (~${avg} sec.)` : "";
             showBanner("");
         } else {
             statusEl.textContent = "";
@@ -130,8 +131,8 @@ Events.On("speech:done", async (ev) => {
     if (id !== activeID) return;
     if (error) {
         showBanner(`Couldn't generate speech. ${error}`);
-        void refreshStatus();
     }
+    void refreshStatus(); // picks up the model's updated average response time
     await audio.finished(id);
     if (id === activeID) stopBtn.hidden = true;
 });

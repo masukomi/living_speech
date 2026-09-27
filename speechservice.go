@@ -57,6 +57,9 @@ type Status struct {
 	Reachable bool           `json:"reachable"`
 	Error     string         `json:"error,omitempty"`
 	Settings  store.Settings `json:"settings"`
+	// AverageSeconds is the model's mean response time over its recent
+	// requests, or nil if none have been recorded.
+	AverageSeconds *float64 `json:"averageSeconds"`
 }
 
 // SpeechService is bound to the frontend.
@@ -64,6 +67,7 @@ type SpeechService struct {
 	client   *openvox.Client
 	settings *store.SettingsStore
 	recent   *store.RecentStore
+	timings  *store.TimingStore
 
 	app    *application.App
 	window *application.WebviewWindow
@@ -82,6 +86,7 @@ func NewSpeechService(dataDir string) *SpeechService {
 		client:   openvox.New(s.BaseURL),
 		settings: ss,
 		recent:   store.NewRecentStore(dataDir),
+		timings:  store.NewTimingStore(dataDir),
 		loaded:   map[string]bool{},
 	}
 }
@@ -114,9 +119,21 @@ func (v *SpeechService) Status() Status {
 	s, err := v.resolveSettings(ctx)
 	if err != nil {
 		saved, _ := v.settings.Load()
-		return Status{Reachable: false, Error: err.Error(), Settings: saved}
+		return Status{Reachable: false, Error: err.Error(), Settings: saved, AverageSeconds: v.averageSeconds(saved.Model)}
 	}
-	return Status{Reachable: true, Settings: s}
+	return Status{Reachable: true, Settings: s, AverageSeconds: v.averageSeconds(s.Model)}
+}
+
+func (v *SpeechService) averageSeconds(model string) *float64 {
+	avg, ok, err := v.timings.Average(model)
+	if err != nil {
+		log.Printf("loading response times: %v", err)
+	}
+	if !ok {
+		return nil
+	}
+	secs := avg.Seconds()
+	return &secs
 }
 
 func (v *SpeechService) ServerURL() string { return v.client.BaseURL }
@@ -227,7 +244,16 @@ func (v *SpeechService) speak(ctx context.Context, id int, text string) error {
 	if err := v.ensureLoaded(ctx, s.Model); err != nil {
 		return err
 	}
+	// Time from sending the request to the first audio, for the model's average.
+	var sentAt time.Time
+	gotAudio := false
 	emit := func(audio []byte) {
+		if !gotAudio {
+			gotAudio = true
+			if err := v.timings.Record(s.Model, time.Since(sentAt)); err != nil {
+				log.Printf("saving response time: %v", err)
+			}
+		}
 		v.app.Event.Emit("speech:chunk", SpeechChunk{ID: id, Audio: base64.StdEncoding.EncodeToString(audio)})
 	}
 	req := openvox.SpeechRequest{
@@ -235,6 +261,7 @@ func (v *SpeechService) speak(ctx context.Context, id int, text string) error {
 		ResponseFormat: "wav", Stream: true,
 	}
 	accepted := func() { v.emitProgress(id, "waiting") }
+	sentAt = time.Now()
 	err = v.client.SpeakWithProgress(ctx, req, accepted, emit)
 	if !errors.Is(err, openvox.ErrVoiceNotFound) {
 		return err
@@ -250,6 +277,7 @@ func (v *SpeechService) speak(ctx context.Context, id int, text string) error {
 		log.Printf("saving replacement voice: %v", serr)
 	}
 	req.Voice = s.Voice
+	sentAt = time.Now()
 	return v.client.SpeakWithProgress(ctx, req, accepted, emit)
 }
 

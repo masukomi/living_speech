@@ -41,4 +41,10 @@ export interface Status {
     "reachable": boolean;
     "error"?: string;
     "settings": store$0.Settings;
+
+    /**
+     * AverageSeconds is the model's mean response time over its recent
+     * requests, or nil if none have been recorded.
+     */
+    "averageSeconds": number | null;
 }
