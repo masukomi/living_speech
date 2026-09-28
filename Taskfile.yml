@@ -1,7 +1,10 @@
 version: '3'
 
 vars:
+  # APP_NAME names the executable (and must match CFBundleExecutable in
+  # build/darwin/Info.plist); APP_DISPLAY_NAME names the .app bundle and .dmg.
   APP_NAME: "livingspeech"
+  APP_DISPLAY_NAME: "LivingSpeech"
   BIN_DIR: "bin"
   PACKAGE_MANAGER: '{{.PACKAGE_MANAGER | default "npm"}}'
   VITE_PORT: '{{.WAILS_VITE_PORT | default 9245}}'
