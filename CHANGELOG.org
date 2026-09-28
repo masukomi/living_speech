@@ -1,3 +1,11 @@
+* v1.0.1
+
+** [fixed]
+- name the app bundle LivingSpeech.app
+
+** [change]
+- play icon is now in a circle
+
 * v1.0.0
 
 initial release of LivingSpeech
