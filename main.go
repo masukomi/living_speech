@@ -2,7 +2,9 @@ package main
 
 import (
 	"embed"
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 
@@ -21,6 +23,13 @@ const (
 )
 
 func main() {
+	// Lets scripts (and the Homebrew test) check the installed app runs,
+	// without starting the GUI.
+	if len(os.Args) > 1 && (os.Args[1] == "--version" || os.Args[1] == "-v") {
+		fmt.Println("LivingSpeech", appVersion())
+		return
+	}
+
 	dataDir, err := store.DefaultDir()
 	if err != nil {
 		log.Fatal(err)
