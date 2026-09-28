@@ -5,66 +5,36 @@ vars:
   BIN_DIR: "bin"
   PACKAGE_MANAGER: '{{.PACKAGE_MANAGER | default "npm"}}'
   VITE_PORT: '{{.WAILS_VITE_PORT | default 9245}}'
-  # Target OS for build/package/run. Defaults to the host OS, and is overridden
-  # by `wails3 build GOOS=...` (or the GOOS env var) for cross-compilation. The
-  # tasks below dispatch to the matching platform Taskfile via this variable.
-  GOOS: '{{.GOOS | default OS}}'
+  # LivingSpeech is macOS-only (it uses macOS speech, login-item, and window
+  # APIs), so every build targets darwin.
+  MACOS_ONLY_MSG: "LivingSpeech only builds on macOS, for macOS."
 
 includes:
   common: ./build/Taskfile.yml
-  windows: ./build/windows/Taskfile.yml
   darwin: ./build/darwin/Taskfile.yml
-  linux: ./build/linux/Taskfile.yml
-  ios: ./build/ios/Taskfile.yml
-  android: ./build/android/Taskfile.yml
 
 tasks:
   build:
     summary: Builds the application
+    preconditions: &macos_only
+      - sh: '[ "{{OS}}" = darwin ] && [ "{{.GOOS | default "darwin"}}" = darwin ]'
+        msg: "{{.MACOS_ONLY_MSG}}"
     cmds:
-      - task: "{{.GOOS}}:build"
+      - task: darwin:build
 
   package:
     summary: Packages a production build of the application
+    preconditions: *macos_only
     cmds:
-      - task: "{{.GOOS}}:package"
+      - task: darwin:package
 
   run:
     summary: Runs the application
+    preconditions: *macos_only
     cmds:
-      - task: "{{.GOOS}}:run"
+      - task: darwin:run
 
   dev:
     summary: Runs the application in development mode
     cmds:
       - wails3 dev -config ./build/config.yml -port {{.VITE_PORT}}
-
-  install:msix:tools:
-    summary: Installs tools required for Windows MSIX packaging
-    cmds:
-      - task: windows:install:msix:tools
-
-  setup:docker:
-    summary: Builds Docker image for cross-compilation (~800MB download)
-    cmds:
-      - task: common:setup:docker
-
-  build:server:
-    summary: Builds the application in server mode (no GUI, HTTP server only)
-    cmds:
-      - task: common:build:server
-
-  run:server:
-    summary: Runs the application in server mode
-    cmds:
-      - task: common:run:server
-
-  build:docker:
-    summary: Builds a Docker image for server mode deployment
-    cmds:
-      - task: common:build:docker
-
-  run:docker:
-    summary: Builds and runs the Docker image
-    cmds:
-      - task: common:run:docker
