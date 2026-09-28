@@ -4,6 +4,7 @@
 :END:
 LivingSpeech is an alternative for Apple's Live Speech app on macOS. It's a simple communication tool for people who can't speak. A simple menu-bar app that speaks what you type.
 
+[[./docs/screenshot.png][screenshot of Living  Speech in action]]
 
 Compared to the Live Speech app macOS ships with in 2026 it has a number of advantages:
 
@@ -20,8 +21,8 @@ Compared to the Live Speech app macOS ships with in 2026 it has a number of adva
 |                                   |                                             |                                          |
 
 
-*LivingSpeech only runs on macOS.* It's built on macOS speech and window
-APIs and there are no plans for other platforms.
+*LivingSpeech only runs on macOS v13 ( Ventura ) or later.*
+It's built on macOS speech and window APIs and there are no plans for other platforms. Feel free to fork it.
 
 ** Features
 :PROPERTIES:
@@ -132,8 +133,10 @@ engine.
 :PROPERTIES:
 :CUSTOM_ID: development
 :END:
-LivingSpeech is written in Go and TypeScript using
-[[https://v3.wails.io][Wails v3]].
+LivingSpeech is written in Go and TypeScript using [[https://v3.wails.io][Wails v3]].
+It was created with Claude Code. Yes, that sucks. But so does
+trying to communicate with the half-assed accessibility
+tools Apple keeps putting out.
 
 #+begin_src sh
 wails3 dev          # live-reload dev build
