@@ -2,6 +2,10 @@ import {SpeechService} from "../bindings/livingspeech";
 import type {Option as SpeechOption} from "../bindings/livingspeech/internal/openvox/models";
 import type {Settings} from "../bindings/livingspeech/internal/store/models";
 
+const engineSel = document.getElementById("engine") as HTMLSelectElement;
+const systemFields = document.getElementById("system-fields") as HTMLDivElement;
+const openvoxFields = document.getElementById("openvox-fields") as HTMLDivElement;
+const refreshBtn = document.getElementById("refresh") as HTMLButtonElement;
 const modelSel = document.getElementById("model") as HTMLSelectElement;
 const langSel = document.getElementById("language") as HTMLSelectElement;
 const voiceSel = document.getElementById("voice") as HTMLSelectElement;
@@ -56,21 +60,37 @@ function fontSizeValue(): number {
     return Math.min(MAX_FONT_SIZE, Math.max(MIN_FONT_SIZE, n));
 }
 
+// The last settings read from disk, so saving with the system voice selected
+// doesn't wipe the OpenVox choices (whose lists may never have been loaded).
+let saved: Settings | null = null;
+
+function showEngineFields() {
+    const openvox = engineSel.value === "openvox";
+    openvoxFields.hidden = !openvox;
+    systemFields.hidden = openvox;
+    refreshBtn.hidden = !openvox;
+}
+
 async function save() {
+    const listsLoaded = modelSel.options.length > 0 && !modelSel.disabled;
     await SpeechService.SaveSettings({
-        model: modelSel.value,
-        language: langSel.value,
-        voice: voiceSel.value,
+        engine: engineSel.value,
+        model: listsLoaded ? modelSel.value : saved?.model ?? "",
+        language: listsLoaded ? langSel.value : saved?.language ?? "",
+        voice: listsLoaded ? voiceSel.value : saved?.voice ?? "",
         fontSize: fontInput.value === "" ? 0 : fontSizeValue(), // 0 keeps the saved size
     } satisfies Settings);
 }
 
-/** Fetch fresh lists from OpenVox and select the saved (or default) choices. */
+/** Show the saved settings, fetching fresh lists from OpenVox if it's the engine. */
 export async function refreshSettings(onChange: () => void): Promise<void> {
     showError("");
     try {
-        const saved = await SpeechService.GetSettings();
+        saved = await SpeechService.GetSettings();
         fontInput.value = String(saved.fontSize || DEFAULT_FONT_SIZE);
+        engineSel.value = saved.engine || "system";
+        showEngineFields();
+        if (engineSel.value !== "openvox") return;
         const models = (await SpeechService.ListModels()) ?? [];
         const model = fill(modelSel, models, saved.model, "No models");
         if (!model) return;
@@ -110,6 +130,16 @@ export function initSettings(onChange: () => void, onFontSize: (size: number) =>
             showError(String(e));
         }
     };
+
+    engineSel.addEventListener("change", guard(async () => {
+        showEngineFields();
+        await save();
+        if (engineSel.value === "openvox") {
+            await refreshSettings(onChange); // load the model, language, and voice lists
+        }
+    }));
+    document.getElementById("open-spoken-content")!.addEventListener("click",
+        () => void SpeechService.OpenSpokenContentSettings().catch((e) => showError(String(e))));
 
     modelSel.addEventListener("change", guard(async () => {
         const language = await loadLanguages(modelSel.value, langSel.value);

@@ -15,6 +15,7 @@ declare module "@wailsio/runtime" {
             "speech:chunk": main$0.SpeechChunk;
             "speech:done": main$0.SpeechEnd;
             "speech:progress": main$0.SpeechProgress;
+            "speech:started": main$0.SpeechStarted;
         }
     }
 }

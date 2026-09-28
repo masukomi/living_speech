@@ -21,9 +21,15 @@ import (
 
 const (
 	previewText = "Hello! This is how I sound."
-	// speechTimeout bounds one utterance, from pressing Return to the end of the audio.
+	// speechTimeout bounds one OpenVox utterance, from pressing Return to the
+	// end of the audio. For the system voice it bounds the wait for speech to
+	// start, since audio then plays live for as long as the text takes.
 	speechTimeout = 2 * time.Minute
+	// systemTimingKey records response times for the system voice.
+	systemTimingKey = "system"
 )
+
+var errStartTimeout = fmt.Errorf("the system voice didn't start within %v", speechTimeout)
 
 // Event payloads sent to the frontend. ID identifies the utterance so the
 // frontend can ignore chunks from a request it has already stopped.
@@ -41,6 +47,12 @@ type SpeechProgress struct {
 	TimeoutMs int    `json:"timeoutMs"`
 }
 
+// SpeechStarted reports that audio began playing natively (system voice),
+// rather than arriving as speech:chunk events.
+type SpeechStarted struct {
+	ID int `json:"id"`
+}
+
 type SpeechEnd struct {
 	ID    int    `json:"id"`
 	Error string `json:"error,omitempty"`
@@ -49,6 +61,7 @@ type SpeechEnd struct {
 func init() {
 	application.RegisterEvent[SpeechProgress]("speech:progress")
 	application.RegisterEvent[SpeechChunk]("speech:chunk")
+	application.RegisterEvent[SpeechStarted]("speech:started")
 	application.RegisterEvent[SpeechEnd]("speech:done")
 }
 
@@ -96,6 +109,9 @@ func (v *SpeechService) attach(app *application.App, window *application.Webview
 }
 
 func (v *SpeechService) ServiceStartup(ctx context.Context, _ application.ServiceOptions) error {
+	if s, _ := v.settings.Load(); !s.UsesOpenVox() {
+		return nil
+	}
 	// Resolve defaults and warm the model without blocking startup.
 	go func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
@@ -112,8 +128,11 @@ func (v *SpeechService) ServiceStartup(ctx context.Context, _ application.Servic
 	return nil
 }
 
-// Status checks the server and returns the effective settings.
+// Status returns the effective settings and, for OpenVox, whether it's reachable.
 func (v *SpeechService) Status() Status {
+	if saved, err := v.settings.Load(); err == nil && !saved.UsesOpenVox() {
+		return Status{Reachable: true, Settings: saved, AverageSeconds: v.averageSeconds(systemTimingKey)}
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	s, err := v.resolveSettings(ctx)
@@ -158,13 +177,16 @@ func (v *SpeechService) GetSettings() (store.Settings, error) {
 func (v *SpeechService) SaveSettings(s store.Settings) error {
 	old, _ := v.settings.Load()
 	s.BaseURL = old.BaseURL
+	if s.Engine == "" {
+		s.Engine = old.Engine
+	}
 	if s.FontSize == 0 {
 		s.FontSize = old.FontSize
 	}
 	if err := v.settings.Save(s); err != nil {
 		return err
 	}
-	if s.Model != "" && s.Model != old.Model {
+	if s.UsesOpenVox() && s.Model != "" && s.Model != old.Model {
 		go func() {
 			if err := v.ensureLoaded(context.Background(), s.Model); err != nil {
 				log.Printf("loading %s: %v", s.Model, err)
@@ -207,7 +229,7 @@ func (v *SpeechService) startSpeech(text string) int {
 	if v.cancel != nil {
 		v.cancel()
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), speechTimeout)
+	ctx, cancel := context.WithCancel(context.Background())
 	v.cancel = cancel
 	v.speechID++
 	id := v.speechID
@@ -216,9 +238,18 @@ func (v *SpeechService) startSpeech(text string) int {
 	v.emitProgress(id, "sending")
 	go func() {
 		defer cancel()
-		err := v.speak(ctx, id, text)
+		var err error
+		if s, _ := v.settings.Load(); s.UsesOpenVox() {
+			octx, ocancel := context.WithTimeout(ctx, speechTimeout)
+			err = v.speak(octx, id, text)
+			ocancel()
+		} else {
+			err = v.speakSystem(ctx, id, text)
+		}
 		end := SpeechEnd{ID: id}
 		switch {
+		case errors.Is(err, errStartTimeout):
+			end.Error = err.Error() + "."
 		case errors.Is(err, context.DeadlineExceeded):
 			end.Error = fmt.Sprintf("OpenVox didn't finish within %v.", speechTimeout)
 		case err != nil && !errors.Is(err, context.Canceled):
@@ -230,6 +261,34 @@ func (v *SpeechService) startSpeech(text string) int {
 		v.app.Event.Emit("speech:done", end)
 	}()
 	return id
+}
+
+// speakSystem speaks with the macOS System Voice, which plays directly rather
+// than streaming audio to the frontend.
+func (v *SpeechService) speakSystem(ctx context.Context, id int, text string) error {
+	ctx, cancel := context.WithCancelCause(ctx)
+	defer cancel(nil)
+	timer := time.AfterFunc(speechTimeout, func() { cancel(errStartTimeout) })
+	defer timer.Stop()
+
+	v.emitProgress(id, "waiting") // nothing to send over a network; it's all generation
+	sentAt := time.Now()
+	err := speakWithSystemVoice(ctx, id, text, func() {
+		timer.Stop()
+		if err := v.timings.Record(systemTimingKey, time.Since(sentAt)); err != nil {
+			log.Printf("saving response time: %v", err)
+		}
+		v.app.Event.Emit("speech:started", SpeechStarted{ID: id})
+	})
+	if cause := context.Cause(ctx); errors.Is(cause, errStartTimeout) {
+		return cause
+	}
+	return err
+}
+
+// OpenSpokenContentSettings opens System Settings where the System Voice is chosen.
+func (v *SpeechService) OpenSpokenContentSettings() error {
+	return exec.Command("open", "x-apple.systempreferences:com.apple.Accessibility-Settings.extension?SpokenContent").Run()
 }
 
 func (v *SpeechService) emitProgress(id int, stage string) {

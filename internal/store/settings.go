@@ -9,8 +9,18 @@ import (
 	"sync"
 )
 
+// Speech engines.
+const (
+	// EngineSystem speaks with the macOS System Voice (Accessibility › Spoken Content).
+	EngineSystem = "system"
+	// EngineOpenVox speaks with a model from the local OpenVox server.
+	EngineOpenVox = "openvox"
+)
+
 // Settings holds the user's voice selection.
 type Settings struct {
+	// Engine is EngineSystem or EngineOpenVox; empty means EngineSystem.
+	Engine   string `json:"engine,omitempty"`
 	Model    string `json:"model"`
 	Language string `json:"language"`
 	Voice    string `json:"voice"`
@@ -18,6 +28,9 @@ type Settings struct {
 	FontSize int    `json:"fontSize,omitempty"`
 	BaseURL  string `json:"baseURL,omitempty"`
 }
+
+// UsesOpenVox reports whether speech goes through OpenVox.
+func (s Settings) UsesOpenVox() bool { return s.Engine == EngineOpenVox }
 
 // SettingsStore loads and saves Settings to a JSON file.
 type SettingsStore struct {

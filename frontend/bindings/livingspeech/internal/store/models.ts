@@ -13,6 +13,10 @@ export interface RecentEntry {
  * Settings holds the user's voice selection.
  */
 export interface Settings {
+    /**
+     * Engine is EngineSystem or EngineOpenVox; empty means EngineSystem.
+     */
+    "engine"?: string;
     "model": string;
     "language": string;
     "voice": string;

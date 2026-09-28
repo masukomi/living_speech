@@ -35,6 +35,14 @@ export interface SpeechProgress {
 }
 
 /**
+ * SpeechStarted reports that audio began playing natively (system voice),
+ * rather than arriving as speech:chunk events.
+ */
+export interface SpeechStarted {
+    "id": number;
+}
+
+/**
  * Status describes whether OpenVox is reachable and which voice will be used.
  */
 export interface Status {

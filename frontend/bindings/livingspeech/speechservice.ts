@@ -42,6 +42,13 @@ export function ListVoices(model: string, language: string): $CancellablePromise
 }
 
 /**
+ * OpenSpokenContentSettings opens System Settings where the System Voice is chosen.
+ */
+export function OpenSpokenContentSettings(): $CancellablePromise<void> {
+    return $Call.ByID(2719447267);
+}
+
+/**
  * Preview speaks a sample sentence with the current settings.
  */
 export function Preview(): $CancellablePromise<number> {
@@ -90,7 +97,7 @@ export function Speak(text: string): $CancellablePromise<number> {
 }
 
 /**
- * Status checks the server and returns the effective settings.
+ * Status returns the effective settings and, for OpenVox, whether it's reachable.
  */
 export function Status(): $CancellablePromise<$models.Status> {
     return $Call.ByID(3437190377);

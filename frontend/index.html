@@ -47,15 +47,29 @@
             </button>
         </header>
 
-        <label class="field">Model
-            <select id="model"></select>
+        <label class="field">Engine
+            <select id="engine">
+                <option value="system">System voice</option>
+                <option value="openvox">OpenVox</option>
+            </select>
         </label>
-        <label class="field">Language
-            <select id="language"></select>
-        </label>
-        <label class="field">Voice
-            <select id="voice"></select>
-        </label>
+
+        <div id="system-fields" class="engine-note">
+            <p>Speaks with your Mac's System Voice, which can be a Siri voice. Choose it in Accessibility › Spoken Content.</p>
+            <button id="open-spoken-content" class="button">Open Spoken Content settings</button>
+        </div>
+
+        <div id="openvox-fields" hidden>
+            <label class="field">Model
+                <select id="model"></select>
+            </label>
+            <label class="field">Language
+                <select id="language"></select>
+            </label>
+            <label class="field">Voice
+                <select id="voice"></select>
+            </label>
+        </div>
         <label class="field">Font size
             <input id="font-size" type="number" min="10" max="28" step="1"/>
         </label>

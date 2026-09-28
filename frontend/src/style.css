@@ -202,6 +202,12 @@ html, body {
     font-size: 1rem;
 }
 
+.engine-note p {
+    margin: 0 0.154rem 0.462rem;
+    font-size: 0.846rem;
+    color: var(--text-secondary);
+}
+
 .button {
     width: 100%;
     margin: 0.154rem 0 0.769rem;

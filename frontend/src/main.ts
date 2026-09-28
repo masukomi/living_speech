@@ -54,7 +54,8 @@ async function refreshStatus() {
         const s = await SpeechService.Status();
         if (s.reachable) {
             const avg = s.averageSeconds == null ? "?" : s.averageSeconds.toFixed(1);
-            statusEl.textContent = s.settings.model ? `${s.settings.model} (~${avg} sec.)` : "";
+            const name = s.settings.engine === "openvox" ? s.settings.model : "System voice";
+            statusEl.textContent = name ? `${name} (~${avg} sec.)` : "";
             showBanner("");
         } else {
             statusEl.textContent = "";
@@ -116,6 +117,12 @@ Events.On("speech:progress", (ev) => {
     progress.stage(id, stage, timeoutMs);
 });
 
+// The system voice plays natively; this marks when its audio began.
+Events.On("speech:started", (ev) => {
+    progress.finish(ev.data.id);
+    startPlayback(ev.data.id);
+});
+
 Events.On("speech:chunk", (ev) => {
     const {id, audio: b64} = ev.data;
     progress.finish(id);
@@ -175,7 +182,7 @@ document.getElementById("close-settings")!.addEventListener("click", () => showS
 document.getElementById("refresh")!.addEventListener("click", () => void refreshSettings(refreshStatus).then(fitPanel));
 document.getElementById("preview")!.addEventListener("click", async () => startPlayback(await SpeechService.Preview()));
 document.getElementById("quit")!.addEventListener("click", () => void SpeechService.Quit());
-initSettings(refreshStatus, applyFontSize);
+initSettings(() => { void refreshStatus(); fitPanel(); }, applyFontSize);
 
 // A double-click on a drag region would trigger macOS's title-bar zoom/minimize.
 // The second mousedown precedes the dblclick, so turn dragging off just for it.

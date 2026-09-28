@@ -10,5 +10,6 @@ export type {
     SpeechChunk,
     SpeechEnd,
     SpeechProgress,
+    SpeechStarted,
     Status
 } from "./models.js";
