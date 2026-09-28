@@ -58,12 +58,8 @@ It's built on macOS speech and window APIs and there are no plans for other plat
 :PROPERTIES:
 :CUSTOM_ID: installation
 :END:
-Download the latest version from the
-[[https://github.com/masukomi/living_speech/releases][releases page]]
-and move LivingSpeech to your Applications folder.
-
-LivingSpeech isn't signed by Apple, so macOS will refuse to open it the
-first time. To allow it:
+** Allowing an Unsigned app
+LivingSpeech isn't a signed app, so regardless of which installation method you choose, macOS will refuse to open it the first time. To allow it:
 
 1. Open LivingSpeech. macOS will warn that it can't verify the app.
    Close the warning.
@@ -72,21 +68,32 @@ first time. To allow it:
    a note about LivingSpeech being blocked. Click *Open Anyway*.
 4. Confirm when asked. After this, LivingSpeech opens normally.
 
+** With Homebrew
+Run the following commands in your terminal to load my tap, and install LivingSpeech.
+Note: you will still
+
+#+begin_src
+brew tap masukomi/homebrew-apps
+brew install living_speech
+#+end_src
+
+** Manually
+Download the latest version from the
+[[https://github.com/masukomi/living_speech/releases][releases page]] and move LivingSpeech to your Applications folder.
+
+
 ** Usage
 :PROPERTIES:
 :CUSTOM_ID: usage
 :END:
-Click the menu bar icon, type what you want said, and press Return.
+Click the menu bar icon, type what you want said, and press Return. Shift+Return inserts a newline without speaking.
 
 Recent entries are shown below the text input:
 
-- Click the *play button* to the left of an entry to speak it again
-  immediately.
-- Click the *text* of an entry to put it in the text box so you can edit
-  it before speaking.
+- Click the *play button* to the left of an entry to speak it again immediately.
+- Click the *text* of an entry to put it in the text box so you can edit it before speaking.
 
-Click the gear icon to open Settings, where you choose the engine and
-font size. Right-click the menu bar icon to quit.
+Click the gear icon to open Settings, where you choose the speech engine and font size. Right-click the menu bar icon to quit.
 
 *** System voice
 :PROPERTIES:
@@ -102,7 +109,10 @@ take effect the next time you speak.
 :CUSTOM_ID: openvox
 :END:
 On a maxed-out M1 Mac, the models currently available in OpenVox can
-take six to ten seconds before you hear your text spoken. Newer Macs may
+take six to ten seconds before you hear your text spoken. This isn't practical
+for everyday communication needs.
+
+I've left support for OpenVox in in hopes that newer Macs will
 have more acceptable response times.
 
 What OpenVox offers is voice selection: many voices across its models,
