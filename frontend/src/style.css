@@ -188,8 +188,15 @@ html, body {
     height: 1.538rem;
 }
 .recent .play svg {
-    width: 0.923rem;
-    height: 0.923rem;
+    width: 1.077rem;
+    height: 1.077rem;
+}
+.recent .play circle {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+}
+.recent .play path {
     fill: currentColor;
     stroke: none;
 }

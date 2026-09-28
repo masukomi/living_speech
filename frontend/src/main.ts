@@ -86,7 +86,8 @@ async function refreshRecent() {
         play.className = "icon-btn play";
         play.title = "Speak";
         play.setAttribute("aria-label", `Speak: ${e.text}`);
-        play.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></svg>';
+        // A circled play symbol; a bare triangle reads as an "expand" disclosure arrow.
+        play.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M10 8.2v7.6l6-3.8z"/></svg>';
         play.addEventListener("click", (ev) => {
             ev.stopPropagation(); // don't also copy it into the text box
             void speak(e.text);
