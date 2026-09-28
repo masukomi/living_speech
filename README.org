@@ -4,7 +4,7 @@
 :END:
 LivingSpeech is an alternative for Apple's Live Speech app on macOS. It's a simple communication tool for people who can't speak. A simple menu-bar app that speaks what you type.
 
-[[./docs/screenshot.png][screenshot of Living  Speech in action]]
+#+HTML: <img src="docs/screenshot.png" alt="The LivingSpeech panel: a text box with a typed phrase, and a list of recent phrases below it">
 
 Compared to the Live Speech app macOS ships with in 2026 it has a number of advantages:
 
