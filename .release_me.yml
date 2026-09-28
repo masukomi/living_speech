@@ -6,13 +6,13 @@ changelog_path: CHANGELOG.org
 changelog_commit_message: updated changelog
 homebrew:
   formula_path: /Users/masukomi/workspace/homebrew-tap/Formula/living_speech.rb
-  associated_remote: origin
+  associated_remote: github
 golang:
   build_binaries: true
+  build_tool: wails3
   binary_name: livingspeech
-  build_platforms:
-  - darwin/amd64
-  - darwin/arm64
 publishable_remotes:
+- remote_name: github
+  forge_type: github
 - remote_name: origin
   forge_type: gitea
