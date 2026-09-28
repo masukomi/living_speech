@@ -4,9 +4,9 @@
 rm_schema_version: v1.0.0
 changelog_path: CHANGELOG.org
 changelog_commit_message: updated changelog
-# homebrew:
-#   formula_path:  /Users/masukomi/workspace/homebrew-tap/Formula/live_speech.rb
-#   associated_remote: github
+homebrew:
+  formula_path:  /Users/masukomi/workspace/homebrew-tap/Formula/living_speech.rb
+  associated_remote: github
 publishable_remotes:
 - remote_name: github
   forge_type: github
