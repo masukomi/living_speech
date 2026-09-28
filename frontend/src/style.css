@@ -168,13 +168,33 @@ html, body {
     overflow-y: auto;
 }
 .recent li {
-    padding: 0.385rem 0.615rem;
+    display: flex;
+    align-items: center;
+    gap: 0.308rem;
+    padding: 0.231rem 0.615rem 0.231rem 0.231rem;
     border-radius: 0.462rem;
+    cursor: default;
+}
+.recent li .text {
+    flex: 1;
+    min-width: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    cursor: default;
 }
+.recent .play {
+    flex: none;
+    width: 1.538rem;
+    height: 1.538rem;
+}
+.recent .play svg {
+    width: 0.923rem;
+    height: 0.923rem;
+    fill: currentColor;
+    stroke: none;
+}
+.recent .play:hover { color: var(--accent); background: transparent; }
+.recent .empty { padding-left: 0.615rem; }
 .recent li:hover { background: var(--hover); }
 .recent .empty { color: var(--text-muted); }
 .recent .empty:hover { background: transparent; }

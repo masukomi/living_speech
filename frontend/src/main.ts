@@ -79,8 +79,25 @@ async function refreshRecent() {
     }
     for (const e of entries) {
         const li = document.createElement("li");
-        li.textContent = e.text;
         li.title = e.text;
+
+        // Speak the phrase directly, leaving whatever is in the text box alone.
+        const play = document.createElement("button");
+        play.className = "icon-btn play";
+        play.title = "Speak";
+        play.setAttribute("aria-label", `Speak: ${e.text}`);
+        play.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z"/></svg>';
+        play.addEventListener("click", (ev) => {
+            ev.stopPropagation(); // don't also copy it into the text box
+            void speak(e.text);
+        });
+
+        const text = document.createElement("span");
+        text.className = "text";
+        text.textContent = e.text;
+
+        li.append(play, text);
+        // Clicking the rest of the row puts the phrase in the text box for editing.
         li.addEventListener("click", () => {
             input.value = e.text;
             autosize();
