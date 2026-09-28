@@ -10,7 +10,8 @@ homebrew:
 golang:
   build_binaries: true
   build_tool: wails3
-  binary_name: livingspeech
+  package_artifacts:
+    - LivingSpeech.app
 publishable_remotes:
 - remote_name: github
   forge_type: github
