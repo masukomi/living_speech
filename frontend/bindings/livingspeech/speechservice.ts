@@ -21,6 +21,13 @@ import * as store$0 from "./internal/store/models.js";
 // @ts-ignore: Unused imports
 import * as $models from "./models.js";
 
+/**
+ * GetLaunchAtLogin reports whether LivingSpeech opens at login.
+ */
+export function GetLaunchAtLogin(): $CancellablePromise<$models.LaunchAtLogin> {
+    return $Call.ByID(909659052);
+}
+
 export function GetSettings(): $CancellablePromise<store$0.Settings> {
     return $Call.ByID(3971361796);
 }
@@ -39,6 +46,13 @@ export function ListModels(): $CancellablePromise<openvox$0.Option[] | null> {
 
 export function ListVoices(model: string, language: string): $CancellablePromise<openvox$0.Option[] | null> {
     return $Call.ByID(3972379224, model, language);
+}
+
+/**
+ * OpenLoginItemsSettings opens System Settings › General › Login Items.
+ */
+export function OpenLoginItemsSettings(): $CancellablePromise<void> {
+    return $Call.ByID(510629385);
 }
 
 /**
@@ -79,6 +93,13 @@ export function ScreenHeight(): $CancellablePromise<number> {
 
 export function ServerURL(): $CancellablePromise<string> {
     return $Call.ByID(3112920301);
+}
+
+/**
+ * SetLaunchAtLogin turns opening at login on or off and returns the new state.
+ */
+export function SetLaunchAtLogin(on: boolean): $CancellablePromise<$models.LaunchAtLogin> {
+    return $Call.ByID(2648237584, on);
 }
 
 /**

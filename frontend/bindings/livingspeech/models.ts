@@ -6,6 +6,19 @@
 import * as store$0 from "./internal/store/models.js";
 
 /**
+ * LaunchAtLogin describes whether LivingSpeech opens when you log in.
+ */
+export interface LaunchAtLogin {
+    "enabled": boolean;
+
+    /**
+     * NeedsApproval means it's registered but the user must allow it in
+     * System Settings › General › Login Items before it takes effect.
+     */
+    "needsApproval": boolean;
+}
+
+/**
  * Event payloads sent to the frontend. ID identifies the utterance so the
  * frontend can ignore chunks from a request it has already stopped.
  */

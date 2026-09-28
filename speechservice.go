@@ -286,6 +286,22 @@ func (v *SpeechService) speakSystem(ctx context.Context, id int, text string) er
 	return err
 }
 
+// GetLaunchAtLogin reports whether LivingSpeech opens at login.
+func (v *SpeechService) GetLaunchAtLogin() LaunchAtLogin {
+	return launchAtLoginState()
+}
+
+// SetLaunchAtLogin turns opening at login on or off and returns the new state.
+func (v *SpeechService) SetLaunchAtLogin(on bool) (LaunchAtLogin, error) {
+	err := setLaunchAtLogin(on)
+	return launchAtLoginState(), err
+}
+
+// OpenLoginItemsSettings opens System Settings › General › Login Items.
+func (v *SpeechService) OpenLoginItemsSettings() {
+	openLoginItemsSettings()
+}
+
 // OpenSpokenContentSettings opens System Settings where the System Voice is chosen.
 func (v *SpeechService) OpenSpokenContentSettings() error {
 	return exec.Command("open", "x-apple.systempreferences:com.apple.Accessibility-Settings.extension?SpokenContent").Run()

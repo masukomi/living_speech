@@ -74,6 +74,15 @@
             <input id="font-size" type="number" min="10" max="28" step="1"/>
         </label>
 
+        <label class="check-field">
+            <input id="launch-at-login" type="checkbox"/>
+            Open at login
+        </label>
+        <div id="login-approval" class="engine-note" hidden>
+            <p>macOS needs your OK before LivingSpeech can open at login. Turn it on under Login Items.</p>
+            <button id="open-login-items" class="button">Open Login Items settings</button>
+        </div>
+
         <button id="preview" class="button">Preview voice</button>
         <div id="settings-error" class="banner" hidden></div>
 

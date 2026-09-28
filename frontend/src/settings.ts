@@ -1,6 +1,7 @@
 import {SpeechService} from "../bindings/livingspeech";
 import type {Option as SpeechOption} from "../bindings/livingspeech/internal/openvox/models";
 import type {Settings} from "../bindings/livingspeech/internal/store/models";
+import type {LaunchAtLogin} from "../bindings/livingspeech/models";
 
 const engineSel = document.getElementById("engine") as HTMLSelectElement;
 const systemFields = document.getElementById("system-fields") as HTMLDivElement;
@@ -11,6 +12,8 @@ const langSel = document.getElementById("language") as HTMLSelectElement;
 const voiceSel = document.getElementById("voice") as HTMLSelectElement;
 const fontInput = document.getElementById("font-size") as HTMLInputElement;
 const errorBox = document.getElementById("settings-error") as HTMLDivElement;
+const loginCheck = document.getElementById("launch-at-login") as HTMLInputElement;
+const loginApproval = document.getElementById("login-approval") as HTMLDivElement;
 
 // Fill a select and return the chosen value: `preferred` if still offered, else the first option.
 function fill(sel: HTMLSelectElement, options: SpeechOption[], preferred: string, emptyLabel: string): string {
@@ -85,6 +88,7 @@ async function save() {
 /** Show the saved settings, fetching fresh lists from OpenVox if it's the engine. */
 export async function refreshSettings(onChange: () => void): Promise<void> {
     showError("");
+    showLaunchAtLogin(await SpeechService.GetLaunchAtLogin()); // macOS is the source of truth
     try {
         saved = await SpeechService.GetSettings();
         fontInput.value = String(saved.fontSize || DEFAULT_FONT_SIZE);
@@ -109,7 +113,25 @@ export async function refreshSettings(onChange: () => void): Promise<void> {
  * Wire up the settings controls. onChange runs after a voice change is saved;
  * onFontSize runs as the font size is edited, so the UI can resize live.
  */
+function showLaunchAtLogin(state: LaunchAtLogin) {
+    loginCheck.checked = state.enabled;
+    loginApproval.hidden = !state.needsApproval;
+}
+
 export function initSettings(onChange: () => void, onFontSize: (size: number) => void) {
+    loginCheck.addEventListener("change", async () => {
+        showError("");
+        try {
+            showLaunchAtLogin(await SpeechService.SetLaunchAtLogin(loginCheck.checked));
+        } catch (e) {
+            showError(`Couldn't change the login item. ${e}`);
+            showLaunchAtLogin(await SpeechService.GetLaunchAtLogin());
+        }
+        onChange(); // the approval note may have appeared or gone, so refit
+    });
+    document.getElementById("open-login-items")!.addEventListener("click",
+        () => void SpeechService.OpenLoginItemsSettings());
+
     let fontSaveTimer: ReturnType<typeof setTimeout>;
     fontInput.addEventListener("input", () => {
         if (fontInput.value === "") return; // mid-edit

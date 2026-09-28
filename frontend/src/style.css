@@ -222,6 +222,19 @@ html, body {
     font-size: 1rem;
 }
 
+.check-field {
+    display: flex;
+    align-items: center;
+    gap: 0.462rem;
+    margin-bottom: 0.769rem;
+    font-size: 1rem;
+}
+.check-field input {
+    margin: 0;
+    width: 1rem;
+    height: 1rem;
+}
+
 .engine-note p {
     margin: 0 0.154rem 0.462rem;
     font-size: 0.846rem;

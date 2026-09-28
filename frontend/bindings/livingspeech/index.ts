@@ -7,6 +7,7 @@ export {
 };
 
 export type {
+    LaunchAtLogin,
     SpeechChunk,
     SpeechEnd,
     SpeechProgress,
