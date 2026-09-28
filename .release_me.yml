@@ -5,10 +5,14 @@ rm_schema_version: v1.0.0
 changelog_path: CHANGELOG.org
 changelog_commit_message: updated changelog
 homebrew:
-  formula_path:  /Users/masukomi/workspace/homebrew-tap/Formula/living_speech.rb
-  associated_remote: github
+  formula_path: /Users/masukomi/workspace/homebrew-tap/Formula/living_speech.rb
+  associated_remote: origin
+golang:
+  build_binaries: true
+  binary_name: livingspeech
+  build_platforms:
+  - darwin/amd64
+  - darwin/arm64
 publishable_remotes:
-- remote_name: github
-  forge_type: github
 - remote_name: origin
   forge_type: gitea
