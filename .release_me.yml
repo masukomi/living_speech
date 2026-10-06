@@ -10,6 +10,8 @@ homebrew:
 golang:
   build_binaries: true
   build_tool: wails3
+  wails3_commands:
+    - package
   package_artifacts:
     - LivingSpeech.app
 publishable_remotes:
