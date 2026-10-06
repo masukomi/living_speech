@@ -11,6 +11,7 @@ const modelSel = document.getElementById("model") as HTMLSelectElement;
 const langSel = document.getElementById("language") as HTMLSelectElement;
 const voiceSel = document.getElementById("voice") as HTMLSelectElement;
 const fontInput = document.getElementById("font-size") as HTMLInputElement;
+const pronunciationsInput = document.getElementById("pronunciations") as HTMLTextAreaElement;
 const errorBox = document.getElementById("settings-error") as HTMLDivElement;
 const loginCheck = document.getElementById("launch-at-login") as HTMLInputElement;
 const loginApproval = document.getElementById("login-approval") as HTMLDivElement;
@@ -82,6 +83,7 @@ async function save() {
         language: listsLoaded ? langSel.value : saved?.language ?? "",
         voice: listsLoaded ? voiceSel.value : saved?.voice ?? "",
         fontSize: fontInput.value === "" ? 0 : fontSizeValue(), // 0 keeps the saved size
+        pronunciations: pronunciationsInput.value,
     } satisfies Settings);
 }
 
@@ -92,6 +94,9 @@ export async function refreshSettings(onChange: () => void): Promise<void> {
     try {
         saved = await SpeechService.GetSettings();
         fontInput.value = String(saved.fontSize || DEFAULT_FONT_SIZE);
+        if (document.activeElement !== pronunciationsInput) {
+            pronunciationsInput.value = saved.pronunciations ?? "";
+        }
         engineSel.value = saved.engine || "system";
         showEngineFields();
         if (engineSel.value !== "openvox") return;
@@ -141,6 +146,17 @@ export function initSettings(onChange: () => void, onFontSize: (size: number) =>
     });
     fontInput.addEventListener("change", () => {
         fontInput.value = String(fontSizeValue()); // snap out-of-range entries
+    });
+
+    let pronunciationsSaveTimer: ReturnType<typeof setTimeout>;
+    pronunciationsInput.addEventListener("input", () => {
+        clearTimeout(pronunciationsSaveTimer);
+        pronunciationsSaveTimer = setTimeout(() => void save().catch((e) => showError(String(e))), 400);
+    });
+    // Saves straight away when the field loses focus, e.g. on leaving settings.
+    pronunciationsInput.addEventListener("change", () => {
+        clearTimeout(pronunciationsSaveTimer);
+        void save().catch((e) => showError(String(e)));
     });
 
     const guard = (fn: () => Promise<void>) => async () => {

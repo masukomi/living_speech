@@ -84,6 +84,20 @@ Recent entries are shown below the text input:
 
 Click the gear icon to open Settings, where you choose the speech engine and font size. Right-click the menu bar icon to quit.
 
+### Correcting Bad Pronunciation
+
+Sometimes text to speech systems don't know how to pronounce a word correctly. For example, the acronym "CLI" is frequently pronounced "klee" which is confusing. This is especially problematic with proper nouns.
+
+You'll find an area for custom "Pronunciations" on the settings screen. One per line: a word, and how to pronounce it, separated by -&gt; or →
+
+For example:
+
+``` text
+cli -> see el eye
+```
+
+LivingSpeech will replace your custom words with their phonetic spellings before shipping them off to the speech engine.
+
 ### System voice
 
 LivingSpeech speaks with the System Voice from **System Settings ›

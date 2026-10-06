@@ -25,8 +25,11 @@ type Settings struct {
 	Language string `json:"language"`
 	Voice    string `json:"voice"`
 	// FontSize is the UI's base font size in points; 0 means the default.
-	FontSize int    `json:"fontSize,omitempty"`
-	BaseURL  string `json:"baseURL,omitempty"`
+	FontSize int `json:"fontSize,omitempty"`
+	// Pronunciations holds the user's custom pronunciations, one
+	// "word -> replacement" per line (see package pronounce).
+	Pronunciations string `json:"pronunciations,omitempty"`
+	BaseURL        string `json:"baseURL,omitempty"`
 }
 
 // UsesOpenVox reports whether speech goes through OpenVox.

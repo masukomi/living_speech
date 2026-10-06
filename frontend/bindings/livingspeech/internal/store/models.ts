@@ -25,5 +25,11 @@ export interface Settings {
      * FontSize is the UI's base font size in points; 0 means the default.
      */
     "fontSize"?: number;
+
+    /**
+     * Pronunciations holds the user's custom pronunciations, one
+     * "word -> replacement" per line (see package pronounce).
+     */
+    "pronunciations"?: string;
     "baseURL"?: string;
 }

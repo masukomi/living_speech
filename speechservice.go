@@ -18,6 +18,7 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 
 	"livingspeech/internal/openvox"
+	"livingspeech/internal/pronounce"
 	"livingspeech/internal/store"
 )
 
@@ -241,7 +242,9 @@ func (v *SpeechService) startSpeech(text string) int {
 	go func() {
 		defer cancel()
 		var err error
-		if s, _ := v.settings.Load(); s.UsesOpenVox() {
+		s, _ := v.settings.Load()
+		text := pronounce.Apply(text, pronounce.Parse(s.Pronunciations))
+		if s.UsesOpenVox() {
 			octx, ocancel := context.WithTimeout(ctx, speechTimeout)
 			err = v.speak(octx, id, text)
 			ocancel()

@@ -222,11 +222,37 @@ html, body {
     margin-bottom: 0.769rem;
 }
 .field select,
-.field input {
+.field input,
+.field textarea {
     display: block;
     width: 100%;
     margin-top: 0.308rem;
     font-size: 1rem;
+}
+.field textarea {
+    /* Fixed height: resizing it wouldn't refit the panel. */
+    resize: none;
+    padding: 0.308rem 0.462rem;
+    border: 1px solid var(--field-border);
+    border-radius: 0.462rem;
+    background: var(--field);
+    color: var(--text);
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 0.923rem;
+    line-height: 1.4;
+    outline: none;
+    -webkit-user-select: text;
+    user-select: text;
+    /* Keep cut, copy, and paste available. */
+    --default-contextmenu: show;
+}
+.field textarea:focus { border-color: var(--accent); }
+.field textarea::placeholder { color: var(--text-muted); }
+.field-hint {
+    display: block;
+    margin-top: 0.231rem;
+    font-size: 0.769rem;
+    color: var(--text-muted);
 }
 
 .check-field {
